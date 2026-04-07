@@ -5,17 +5,21 @@ public class Player : MonoBehaviour
 {
     public float JumpForce;
     public float Speed;
+    public float JumpCooldown = 0.1f;
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
+    private Collider2D PlayerCollider;
     private Animator Animator;
     private float Horizontal;
     private bool Grounded;
+    private float nextJumpTime;
 
     private bool canMove = true;
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Rigidbody2D = GetComponent<Rigidbody2D>(); //esta funcion mete el componente Rigidbody dentro del script
+        PlayerCollider = GetComponent<Collider2D>();
         Animator = GetComponent<Animator>();
     }
 
@@ -23,9 +27,13 @@ public class Player : MonoBehaviour
     void Update()
     {
         //RAYOS
-        if (Physics2D.Raycast(transform.position, Vector3.down, 0.28f) ||                           //rayo central
-            Physics2D.Raycast(transform.position + Vector3.right * 0.15f, Vector3.down, 0.28f) ||   //rayo derecha
-            Physics2D.Raycast(transform.position + Vector3.left * 0.15f, Vector3.down, 0.28f))      //rayo izquierda
+        RaycastHit2D centerHit = Physics2D.Raycast(transform.position, Vector3.down, 0.24f); //rayo central
+        RaycastHit2D rightHit = Physics2D.Raycast(transform.position + Vector3.right * 0.15f, Vector3.down, 0.24f); //rayo derecha
+        RaycastHit2D leftHit = Physics2D.Raycast(transform.position + Vector3.left * 0.15f, Vector3.down, 0.24f); //rayo izquierda
+
+        if ((centerHit.collider != null && centerHit.collider != PlayerCollider) ||
+            (rightHit.collider != null && rightHit.collider != PlayerCollider) ||
+            (leftHit.collider != null && leftHit.collider != PlayerCollider))
         {
             Grounded = true;
             //Animator.SetBool("Jumping", false);
@@ -51,8 +59,9 @@ public class Player : MonoBehaviour
         }
 
         //SALTO
-        if (IsJumpPressed() && Grounded) {
+        if (IsJumpPressed() && Grounded && Time.time >= nextJumpTime) {
             Jump();
+            nextJumpTime = Time.time + JumpCooldown;
         }
     }
 
@@ -107,8 +116,8 @@ public class Player : MonoBehaviour
 
     private void OnDrawGizmos() //dibujamos los 3 rayos
     {
-        Debug.DrawRay(transform.position + Vector3.right * 0.15f, Vector3.down * 0.28f, Color.red);
-        Debug.DrawRay(transform.position + Vector3.left * 0.15f, Vector3.down * 0.28f, Color.red);
-        Debug.DrawRay(transform.position, Vector3.down * 0.28f, Color.red);
+        Debug.DrawRay(transform.position + Vector3.right * 0.15f, Vector3.down * 0.24f, Color.red);
+        Debug.DrawRay(transform.position + Vector3.left * 0.15f, Vector3.down * 0.24f, Color.red);
+        Debug.DrawRay(transform.position, Vector3.down * 0.24f, Color.red);
     }
 }
