@@ -8,7 +8,7 @@ public class Enemy1 : MonoBehaviour
     [SerializeField] private string targetTag = "Player";
 
     [Header("Movimiento")]
-    public float speed = 2f;
+    public float speed = 0.6f;
     public bool debePerseguir;
     public float distancia = 5f;
 
@@ -54,32 +54,22 @@ public class Enemy1 : MonoBehaviour
         puedeAtacar = true;
         if (animator != null)
         {
-            animator.SetBool("melee", false);
+            //animator.SetBool("melee", false);
+            return;
         }
     }
 
     /***************** DAÑO Y COLISIONES ******************/
-    // Desactivado temporalmente hasta implementar el sistema de proyectiles/daño.
-    // public float friccion_Bala = 0.4f;
-    // [SerializeField] private string projectileTag = "WeaponPJ";
-    //
-    // private void OnCollisionEnter2D(Collision2D collision)
-    // {
-    //     if (collision.gameObject.CompareTag(projectileTag))
-    //     {
-    //         rb.linearVelocity *= friccion_Bala;
-    //         if (animator != null)
-    //         {
-    //             animator.SetTrigger("Hurt");
-    //         }
-    //     }
-    // }
-    //
-    // public float tomarDaño(float daño)
-    // {
-    //     return daño;
-    // }
-    /******************************************************/
+    public void RecibirDanio(float danio)
+    {
+        vida -= danio;
+
+        if (animator != null)
+        {
+            //animator.SetTrigger("hurt");
+            return;
+        }
+    }
 
     private void Start()
     {

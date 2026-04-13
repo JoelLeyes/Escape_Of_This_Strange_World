@@ -6,6 +6,7 @@ public class Player : MonoBehaviour
     public float JumpForce;
     public float Speed;
     public float JumpCooldown = 0.1f;
+    [SerializeField] private Fire firePrefab;
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
     private Collider2D PlayerCollider;
@@ -13,14 +14,21 @@ public class Player : MonoBehaviour
     private float Horizontal;
     private bool Grounded;
     private float nextJumpTime;
+    private float nextAttackTime;
 
     private bool canMove = true;
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Rigidbody2D = GetComponent<Rigidbody2D>(); //esta funcion mete el componente Rigidbody dentro del script
         PlayerCollider = GetComponent<Collider2D>();
         Animator = GetComponent<Animator>();
+
+        if (Animator == null)
+        {
+            Debug.LogWarning("No Animator found on Player. Animation states will be skipped.", this);
+        }
     }
 
     // Update is called once per frame
@@ -36,11 +44,11 @@ public class Player : MonoBehaviour
             (leftHit.collider != null && leftHit.collider != PlayerCollider))
         {
             Grounded = true;
-            //Animator.SetBool("Jumping", false);
+            Animator.SetBool("Jumping", false);
         }
         else {
             Grounded = false;
-            //Animator.SetBool("Jumping", true);
+            Animator.SetBool("Jumping", true);
         }
 
         //ROTAR SPRITE
@@ -54,8 +62,8 @@ public class Player : MonoBehaviour
             {
                 transform.eulerAngles = new Vector3(0, 0, 0);
             }
-            //if (Grounded)
-                //Animator.SetBool("Running", Horizontal != 0.0f);
+            if (Grounded && Animator != null)
+                Animator.SetBool("Running", Horizontal != 0.0f);
         }
 
         //SALTO
@@ -63,8 +71,21 @@ public class Player : MonoBehaviour
             Jump();
             nextJumpTime = Time.time + JumpCooldown;
         }
-    }
 
+        MagicAttack();
+        // Controlar el movimiento según la animación mágica
+        if (Animator != null)
+        {
+            if (Animator.GetCurrentAnimatorStateInfo(0).IsName("Magic_Attack"))
+            {
+                canMove = false;
+            }
+            else if (!canMove)
+            {
+                canMove = true;
+            }
+        }
+    }
     private float GetHorizontalInput()
     {
         if (Keyboard.current == null)
@@ -95,7 +116,42 @@ public class Player : MonoBehaviour
                || Keyboard.current.spaceKey.wasPressedThisFrame;
     }
 
-    
+    private void MagicAttack()
+    {
+        if (Keyboard.current == null
+            || !Keyboard.current.qKey.wasPressedThisFrame
+            || !Grounded
+            || Animator == null
+            || !Cooldown(0.35f))
+        {
+            return;
+        }
+
+        canMove = false;
+        Animator.SetTrigger("Magic");
+
+        if (firePrefab == null)
+        {
+            Debug.LogError("Fire prefab is not assigned in Player Inspector.", this);
+            return;
+        }
+
+        int direction = transform.right.x >= 0f ? 1 : -1;
+        Fire fire = Instantiate(firePrefab, transform.position, Quaternion.identity);
+        fire.Initialize(direction);
+    }
+
+    private bool Cooldown(float cooldown)
+    {
+        if (Time.time < nextAttackTime)
+        {
+            return false;
+        }
+
+        nextAttackTime = Time.time + cooldown;
+        return true;
+    }
+
     private void Jump()
     {
         Rigidbody2D.AddForce(Vector2.up * JumpForce);
