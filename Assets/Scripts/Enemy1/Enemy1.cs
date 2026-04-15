@@ -8,9 +8,10 @@ public class Enemy1 : MonoBehaviour
     [SerializeField] private string targetTag = "Player";
 
     [Header("Movimiento")]
-    public float speed = 0.6f;
+    public float speed = 0.3f;
     public bool debePerseguir;
     public float distancia = 5f;
+    [SerializeField] private bool invertFacing = false;
 
     [Header("Rutina")]
     public float cronometro;
@@ -20,6 +21,7 @@ public class Enemy1 : MonoBehaviour
     [Header("Combate")]
     public float vida = 100f;
     public GameObject hitbox;
+    [SerializeField] private float attackLockDuration = 0.6f;
 
     private float distanciaDelObjetivo;
     private float distanciaDelObjetivoEjeY;
@@ -31,6 +33,9 @@ public class Enemy1 : MonoBehaviour
 
     private Rigidbody2D rb;
     private Animator animator;
+    private float baseScaleX;
+    private SpriteRenderer[] spriteRenderers;
+    private float attackUnlockTime;
 
     /***************** EVENTOS DE ANIMACION ******************/
     // Evento de animacion: inicio del golpe
@@ -45,18 +50,7 @@ public class Enemy1 : MonoBehaviour
     // Evento de animacion: fin del golpe
     public void golpeFin()
     {
-        if (hitbox != null)
-        {
-            hitbox.SetActive(false);
-        }
-
-        canMove = true;
-        puedeAtacar = true;
-        if (animator != null)
-        {
-            //animator.SetBool("melee", false);
-            return;
-        }
+        EndAttackState();
     }
 
     /***************** DAÑO Y COLISIONES ******************/
@@ -66,7 +60,7 @@ public class Enemy1 : MonoBehaviour
 
         if (animator != null)
         {
-            //animator.SetTrigger("hurt");
+            animator.SetTrigger("hurt");
             return;
         }
     }
@@ -76,6 +70,17 @@ public class Enemy1 : MonoBehaviour
         // Obtiene los componentes necesarios del enemigo
         rb = GetComponent<Rigidbody2D>();
         animator = GetComponent<Animator>();
+        spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
+        baseScaleX = Mathf.Abs(transform.localScale.x);
+        if (baseScaleX <= 0f)
+        {
+            baseScaleX = 1f;
+        }
+
+        if (animator == null)
+        {
+            Debug.LogWarning("Enemy1: falta Animator en el objeto enemigo, por eso no entra en animacion Run.", this);
+        }
 
         if (objetivo == null)
         {
@@ -111,6 +116,17 @@ public class Enemy1 : MonoBehaviour
             return;
         }
 
+        if (objetivo != null)
+        {
+            float deltaX = objetivo.transform.position.x - transform.position.x;
+            SetFacingToTarget(deltaX);
+        }
+
+        if (!canMove && Time.time >= attackUnlockTime)
+        {
+            EndAttackState();
+        }
+
         // Si no hay objetivo o esta bloqueado por animacion de ataque, no procesa IA
         if (objetivo == null || !canMove)
         {
@@ -134,6 +150,7 @@ public class Enemy1 : MonoBehaviour
             // Frena antes de iniciar el golpe para evitar deslizamientos
             rb.linearVelocity *= 0.95f;
             canMove = false;
+            attackUnlockTime = Time.time + attackLockDuration;
 
             if (rb.linearVelocity.magnitude < 0.1f)
             {
@@ -145,6 +162,8 @@ public class Enemy1 : MonoBehaviour
                 animator.SetBool("melee", true);
             }
 
+            SetRunAnimation(false);
+
             puedeAtacar = false;
             return;
         }
@@ -152,22 +171,10 @@ public class Enemy1 : MonoBehaviour
 
         if (distanciaAbsoluta < distancia)
         {
-            // Voltea el sprite para mirar al jugador
-            if (distanciaDelObjetivo < 0)
-            {
-                transform.localScale = new Vector3(1, 1, 1);
-            }
-
-            if (distanciaDelObjetivo > 0)
-            {
-                transform.localScale = new Vector3(-1, 1, 1);
-            }
+            SetFacingToTarget(distanciaDelObjetivo);
 
             debePerseguir = true;
-            if (animator != null)
-            {
-                animator.SetBool("perseguir", true);
-            }
+            SetRunAnimation(true);
 
             cronometro = 0;
             rutina = 0;
@@ -176,10 +183,7 @@ public class Enemy1 : MonoBehaviour
         {
             /************************************** RUTINA ***************************************/
             debePerseguir = false;
-            if (animator != null)
-            {
-                animator.SetBool("perseguir", false);
-            }
+            SetRunAnimation(false);
 
             cronometro += Time.deltaTime;
             if (cronometro >= 4)
@@ -191,10 +195,7 @@ public class Enemy1 : MonoBehaviour
             switch (rutina)
             {
                 case 0:
-                    if (animator != null)
-                    {
-                        animator.SetBool("perseguir", false);
-                    }
+                    SetRunAnimation(false);
                     break;
                 case 1:
                     direccion = Random.Range(0, 2);
@@ -204,22 +205,76 @@ public class Enemy1 : MonoBehaviour
                     switch (direccion)
                     {
                         case 0:
-                            transform.localScale = new Vector3(-1, 1, 1);
+                            SetFacingToTarget(1f);
                             transform.Translate(Vector3.right * speed * Time.deltaTime);
                             break;
                         case 1:
-                            transform.localScale = new Vector3(1, 1, 1);
+                            SetFacingToTarget(-1f);
                             transform.Translate(Vector3.left * speed * Time.deltaTime);
                             break;
                     }
 
-                    if (animator != null)
-                    {
-                        animator.SetBool("perseguir", true);
-                    }
+                    SetRunAnimation(true);
                     break;
             }
             /**************************************************************************************/
+        }
+    }
+
+    private void SetFacingToTarget(float deltaX)
+    {
+        if (Mathf.Abs(deltaX) < 0.001f)
+        {
+            return;
+        }
+
+        bool lookRight = deltaX > 0f;
+        if (invertFacing)
+        {
+            lookRight = !lookRight;
+        }
+
+        if (spriteRenderers != null && spriteRenderers.Length > 0)
+        {
+            for (int i = 0; i < spriteRenderers.Length; i++)
+            {
+                if (spriteRenderers[i] != null)
+                {
+                    spriteRenderers[i].flipX = lookRight;
+                }
+            }
+
+            // Si estamos usando flipX, mantenemos escala positiva para no anular el giro.
+            transform.localScale = new Vector3(baseScaleX, transform.localScale.y, transform.localScale.z);
+            return;
+        }
+
+        float facingScaleX = lookRight ? -baseScaleX : baseScaleX;
+        transform.localScale = new Vector3(facingScaleX, transform.localScale.y, transform.localScale.z);
+    }
+
+    private void SetRunAnimation(bool isRunning)
+    {
+        if (animator != null)
+        {
+            animator.SetBool("perseguir", isRunning);
+        }
+    }
+
+    private void EndAttackState()
+    {
+        if (hitbox != null)
+        {
+            hitbox.SetActive(false);
+        }
+
+        canMove = true;
+        puedeAtacar = true;
+        attackUnlockTime = 0f;
+
+        if (animator != null)
+        {
+            animator.SetBool("melee", false);
         }
     }
 }

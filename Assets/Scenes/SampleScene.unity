@@ -962,6 +962,7 @@ GameObject:
   - component: {fileID: 2069741345}
   - component: {fileID: 2069741344}
   - component: {fileID: 2069741343}
+  - component: {fileID: 2069741346}
   m_Layer: 0
   m_Name: Enemy1
   m_TagString: Enemy
@@ -1018,7 +1019,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 21300000, guid: 4666444163de1f54481b19105574b029, type: 3}
+  m_Sprite: {fileID: -8049779869267743601, guid: b58dfff5ccb937447ae6264465b571b2, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -1081,7 +1082,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.64, y: 0.64}
+    oldSize: {x: 0.25, y: 0.53}
     newSize: {x: 0.64, y: 0.64}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -1128,16 +1129,40 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c87d428cfdf7b4f4dbd0243639b65bc4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
-  objetivo: {fileID: 0}
+  objetivo: {fileID: 1811171530}
   targetTag: Player
   speed: 1
   debePerseguir: 0
   distancia: 5
+  invertFacing: 1
   cronometro: 0
   rutina: 0
   direccion: 0
   vida: 100
   hitbox: {fileID: 0}
+  attackLockDuration: 0.6
+--- !u!95 &2069741346
+Animator:
+  serializedVersion: 7
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2069741340}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 401f63095e5c45d49945b71f4d349322, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_AnimatePhysics: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
 --- !u!1001 &5131703913971584264
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1168,11 +1193,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6886546781149008248, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -1.415
+      value: 0.63
       objectReference: {fileID: 0}
     - target: {fileID: 6886546781149008248, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -0.451
+      value: -0.34
       objectReference: {fileID: 0}
     - target: {fileID: 6886546781149008248, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: m_LocalPosition.z
