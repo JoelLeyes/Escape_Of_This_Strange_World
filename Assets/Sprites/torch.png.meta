@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: 05fe45d94454e8e4c9f73bb6ca46362d
+guid: b2aae4487aff4c7458d016fe3392da2e
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4373184736405950995
-    second: floor_0
+      213: 7509860518518112746
+    second: torch_0
+  - first:
+      213: 6717470441782034276
+    second: torch_1
+  - first:
+      213: 5030290666744600015
+    second: torch_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -37,7 +43,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -113,12 +119,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: floor_0
+      name: torch_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 84
-        width: 300
+        x: 6
+        y: 0
+        width: 15
         height: 28
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -128,8 +134,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: dedec5107a35f43c0800000000000000
-      internalID: -4373184736405950995
+      spriteID: ae1c0074a52683860800000000000000
+      internalID: 7509860518518112746
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: torch_1
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 0
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46fba9fa6cf393d50800000000000000
+      internalID: 6717470441782034276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: torch_2
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 0
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc55644b5be2fc540800000000000000
+      internalID: 5030290666744600015
       vertices: []
       indices: 
       edges: []
@@ -148,7 +198,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      floor_0: -4373184736405950995
+      torch_0: 7509860518518112746
+      torch_1: 6717470441782034276
+      torch_2: 5030290666744600015
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 

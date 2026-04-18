@@ -6,6 +6,7 @@ public class Fire : MonoBehaviour
     [SerializeField] private float lifeTime = 2f;
     [SerializeField] private float damage = 20f;
     [SerializeField] private string enemyTag = "Enemy";
+    [SerializeField] private string attackTag = "Player_Attack";
 
     private int direction = 1;
     private Rigidbody2D rb;
@@ -13,6 +14,8 @@ public class Fire : MonoBehaviour
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        gameObject.tag = attackTag;
+
         if (rb != null)
         {
             rb.gravityScale = 0f;
