@@ -22,6 +22,7 @@ public class Enemy1 : MonoBehaviour
     public float vida = 100f;
     public GameObject hitbox;
     [SerializeField] private float attackLockDuration = 0.6f;
+    [SerializeField] private float attackDistance = 0.6f;
 
     private float distanciaDelObjetivo;
     private float distanciaDelObjetivoEjeY;
@@ -145,7 +146,7 @@ public class Enemy1 : MonoBehaviour
         }
 
         /********************************* GOLPEAR JUGADOR **********************************/
-        if (puedeAtacar && distanciaAbsoluta < 0.6f && distanciaAbsolutaEjeY < 0.6f)
+        if (puedeAtacar && distanciaAbsoluta < attackDistance && distanciaAbsolutaEjeY < attackDistance)
         {
             // Frena antes de iniciar el golpe para evitar deslizamientos
             rb.linearVelocity *= 0.95f;
@@ -159,10 +160,12 @@ public class Enemy1 : MonoBehaviour
 
             if (animator != null)
             {
+                // IMPORTANTE: En el Animator de Enemy1, la transición a Attack sale desde "Run".
+                // Si apagamos "perseguir" (Run) en el mismo frame en que activamos "melee",
+                // el Animator prioriza la transición Run -> idle y nunca entra a Attack.
+                animator.SetBool("perseguir", true);
                 animator.SetBool("melee", true);
             }
-
-            SetRunAnimation(false);
 
             puedeAtacar = false;
             return;
