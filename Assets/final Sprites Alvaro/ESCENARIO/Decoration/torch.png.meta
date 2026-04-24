@@ -1,10 +1,16 @@
 fileFormatVersion: 2
-guid: e5b8ead29dc8dc643b96d97bbbe21f9e
+guid: 500a80402aeeb154aae13ef3a3ea0621
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -4435364719106762690
-    second: PLATFORM_0
+      213: 7509860518518112746
+    second: torch_0
+  - first:
+      213: 6717470441782034276
+    second: torch_1
+  - first:
+      213: 5030290666744600015
+    second: torch_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,12 +119,12 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: PLATFORM_0
+      name: torch_0
       rect:
         serializedVersion: 2
-        x: 25
-        y: 34
-        width: 154
+        x: 6
+        y: 0
+        width: 15
         height: 28
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -128,8 +134,52 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: e38575c994b6272c0800000000000000
-      internalID: -4435364719106762690
+      spriteID: ae1c0074a52683860800000000000000
+      internalID: 7509860518518112746
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: torch_1
+      rect:
+        serializedVersion: 2
+        x: 34
+        y: 0
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 46fba9fa6cf393d50800000000000000
+      internalID: 6717470441782034276
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: torch_2
+      rect:
+        serializedVersion: 2
+        x: 62
+        y: 0
+        width: 15
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fc55644b5be2fc540800000000000000
+      internalID: 5030290666744600015
       vertices: []
       indices: 
       edges: []
@@ -148,7 +198,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      PLATFORM_0: -4435364719106762690
+      torch_0: 7509860518518112746
+      torch_1: 6717470441782034276
+      torch_2: 5030290666744600015
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
