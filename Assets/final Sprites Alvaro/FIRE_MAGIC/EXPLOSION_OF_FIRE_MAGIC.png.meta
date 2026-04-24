@@ -1,0 +1,494 @@
+fileFormatVersion: 2
+guid: 83e49e94b1c95df47a4d8da2ec642ec1
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: -3419931905394401836
+    second: EXPLOSION_OF_FIRE_MAGIC_0
+  - first:
+      213: -6488429310422709139
+    second: EXPLOSION_OF_FIRE_MAGIC_1
+  - first:
+      213: -543289691942438544
+    second: EXPLOSION_OF_FIRE_MAGIC_2
+  - first:
+      213: 8296878006682722428
+    second: EXPLOSION_OF_FIRE_MAGIC_3
+  - first:
+      213: 4427855594109056351
+    second: EXPLOSION_OF_FIRE_MAGIC_4
+  - first:
+      213: 6486743230073210467
+    second: EXPLOSION_OF_FIRE_MAGIC_5
+  - first:
+      213: 1436648436006229815
+    second: EXPLOSION_OF_FIRE_MAGIC_6
+  - first:
+      213: 2075436784153891892
+    second: EXPLOSION_OF_FIRE_MAGIC_7
+  - first:
+      213: 8107588771207722939
+    second: EXPLOSION_OF_FIRE_MAGIC_8
+  - first:
+      213: -8568362955122867108
+    second: EXPLOSION_OF_FIRE_MAGIC_9
+  - first:
+      213: -8595399197630871557
+    second: EXPLOSION_OF_FIRE_MAGIC_10
+  - first:
+      213: -8803498585694909563
+    second: EXPLOSION_OF_FIRE_MAGIC_11
+  - first:
+      213: -1730854610012325640
+    second: EXPLOSION_OF_FIRE_MAGIC_12
+  - first:
+      213: -6584775298594413146
+    second: EXPLOSION_OF_FIRE_MAGIC_13
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 1
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 1
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_0
+      rect:
+        serializedVersion: 2
+        x: 23
+        y: 22
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 4dd11f63d06f980d0800000000000000
+      internalID: -3419931905394401836
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_1
+      rect:
+        serializedVersion: 2
+        x: 87
+        y: 22
+        width: 24
+        height: 24
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: d6c850a5be774f5a0800000000000000
+      internalID: -6488429310422709139
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_2
+      rect:
+        serializedVersion: 2
+        x: 146
+        y: 20
+        width: 29
+        height: 28
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 079b3a557e8d578f0800000000000000
+      internalID: -543289691942438544
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_3
+      rect:
+        serializedVersion: 2
+        x: 204
+        y: 15
+        width: 40
+        height: 38
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c70231d969e642370800000000000000
+      internalID: 8296878006682722428
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_4
+      rect:
+        serializedVersion: 2
+        x: 268
+        y: 21
+        width: 13
+        height: 23
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f55b89bf337e27d30800000000000000
+      internalID: 4427855594109056351
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_5
+      rect:
+        serializedVersion: 2
+        x: 277
+        y: 31
+        width: 29
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3660fa9799a850a50800000000000000
+      internalID: 6486743230073210467
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_6
+      rect:
+        serializedVersion: 2
+        x: 279
+        y: 26
+        width: 17
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 737954f042000f310800000000000000
+      internalID: 1436648436006229815
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_7
+      rect:
+        serializedVersion: 2
+        x: 332
+        y: 31
+        width: 6
+        height: 10
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 434954152ce6dcc10800000000000000
+      internalID: 2075436784153891892
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_8
+      rect:
+        serializedVersion: 2
+        x: 341
+        y: 31
+        width: 29
+        height: 22
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bb738c41801f38070800000000000000
+      internalID: 8107588771207722939
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_9
+      rect:
+        serializedVersion: 2
+        x: 343
+        y: 26
+        width: 16
+        height: 17
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c5409491a4f071980800000000000000
+      internalID: -8568362955122867108
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_10
+      rect:
+        serializedVersion: 2
+        x: 284
+        y: 15
+        width: 19
+        height: 13
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: bf7c88a58f107b880800000000000000
+      internalID: -8595399197630871557
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_11
+      rect:
+        serializedVersion: 2
+        x: 335
+        y: 21
+        width: 10
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 58b4003eda0b3d580800000000000000
+      internalID: -8803498585694909563
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_12
+      rect:
+        serializedVersion: 2
+        x: 348
+        y: 16
+        width: 9
+        height: 6
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8f83e5417e4caf7e0800000000000000
+      internalID: -1730854610012325640
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: EXPLOSION_OF_FIRE_MAGIC_13
+      rect:
+        serializedVersion: 2
+        x: 360
+        y: 19
+        width: 6
+        height: 9
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6a56389e0cd2e94a0800000000000000
+      internalID: -6584775298594413146
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      EXPLOSION_OF_FIRE_MAGIC_0: -3419931905394401836
+      EXPLOSION_OF_FIRE_MAGIC_1: -6488429310422709139
+      EXPLOSION_OF_FIRE_MAGIC_10: -8595399197630871557
+      EXPLOSION_OF_FIRE_MAGIC_11: -8803498585694909563
+      EXPLOSION_OF_FIRE_MAGIC_12: -1730854610012325640
+      EXPLOSION_OF_FIRE_MAGIC_13: -6584775298594413146
+      EXPLOSION_OF_FIRE_MAGIC_2: -543289691942438544
+      EXPLOSION_OF_FIRE_MAGIC_3: 8296878006682722428
+      EXPLOSION_OF_FIRE_MAGIC_4: 4427855594109056351
+      EXPLOSION_OF_FIRE_MAGIC_5: 6486743230073210467
+      EXPLOSION_OF_FIRE_MAGIC_6: 1436648436006229815
+      EXPLOSION_OF_FIRE_MAGIC_7: 2075436784153891892
+      EXPLOSION_OF_FIRE_MAGIC_8: 8107588771207722939
+      EXPLOSION_OF_FIRE_MAGIC_9: -8568362955122867108
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
