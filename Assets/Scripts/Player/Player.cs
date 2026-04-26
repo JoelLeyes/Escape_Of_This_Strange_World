@@ -6,6 +6,11 @@ public class Player : MonoBehaviour
     public float JumpForce;
     public float Speed;
     public float JumpCooldown = 0.1f;
+    public float DashSpeed = 16f;
+    public float DashDuration = 0.12f;
+    public float DashCooldown = 0.6f;
+    [SerializeField] private string dashAnimatorBool = "Dashing";
+    [SerializeField] private LayerMask dashIgnoreCollisionLayers;
     [SerializeField] private Fire firePrefab;
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
@@ -15,8 +20,14 @@ public class Player : MonoBehaviour
     private bool Grounded;
     private float nextJumpTime;
     private float nextAttackTime;
+    private float nextDashTime;
+    private float dashEndTime;
+    private int dashDirection = 1;
+    private bool isDashing;
 
     private bool canMove = true;
+
+    
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
@@ -34,6 +45,11 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (isDashing && Time.time >= dashEndTime)
+        {
+            StopDash();
+        }
+
         //RAYOS
         RaycastHit2D centerHit = Physics2D.Raycast(transform.position, Vector3.down, 0.24f); //rayo central
         RaycastHit2D rightHit = Physics2D.Raycast(transform.position + Vector3.right * 0.15f, Vector3.down, 0.24f); //rayo derecha
@@ -51,6 +67,16 @@ public class Player : MonoBehaviour
             Animator.SetBool("Jumping", true);
         }
 
+        if (isDashing)
+        {
+            Horizontal = 0f;
+            if (Animator != null)
+            {
+                Animator.SetBool("Running", false);
+            }
+            return;
+        }
+
         //ROTAR SPRITE
         if (canMove) {
             Horizontal = GetHorizontalInput(); //valores de -1 0 1
@@ -64,6 +90,16 @@ public class Player : MonoBehaviour
             }
             if (Grounded && Animator != null)
                 Animator.SetBool("Running", Horizontal != 0.0f);
+        }
+
+        if (canMove && !isDashing && IsDashPressed() && Time.time >= nextDashTime)
+        {
+            dashDirection = Horizontal != 0f ? (Horizontal > 0f ? 1 : -1) : (transform.right.x >= 0f ? 1 : -1);
+            isDashing = true;
+            dashEndTime = Time.time + DashDuration;
+            nextDashTime = Time.time + DashCooldown;
+            SetDashVisual(true);
+            SetDashCollisionIgnore(true);
         }
 
         //SALTO
@@ -116,6 +152,17 @@ public class Player : MonoBehaviour
                || Keyboard.current.spaceKey.wasPressedThisFrame;
     }
 
+    private bool IsDashPressed()
+    {
+        if (Keyboard.current == null)
+        {
+            return false;
+        }
+
+        return Keyboard.current.leftShiftKey.wasPressedThisFrame
+               || Keyboard.current.rightShiftKey.wasPressedThisFrame;
+    }
+
     private void MagicAttack()
     {
         if (Keyboard.current == null
@@ -157,11 +204,58 @@ public class Player : MonoBehaviour
         Rigidbody2D.AddForce(Vector2.up * JumpForce);
     }
 
+    private void StopDash()
+    {
+        isDashing = false;
+        SetDashVisual(false);
+        SetDashCollisionIgnore(false);
+    }
+
+    private void SetDashVisual(bool active)
+    {
+        if (Animator == null || string.IsNullOrEmpty(dashAnimatorBool))
+        {
+            return;
+        }
+
+        Animator.SetBool(dashAnimatorBool, active);
+    }
+
+    private void SetDashCollisionIgnore(bool ignore)
+    {
+        int layersToIgnore = dashIgnoreCollisionLayers.value;
+        if (layersToIgnore == 0)
+        {
+            return;
+        }
+
+        int playerLayer = gameObject.layer;
+        for (int layer = 0; layer < 32; layer++)
+        {
+            if ((layersToIgnore & (1 << layer)) != 0)
+            {
+                Physics2D.IgnoreLayerCollision(playerLayer, layer, ignore);
+            }
+        }
+    }
+
+    private void OnDisable()
+    {
+        SetDashVisual(false);
+        SetDashCollisionIgnore(false);
+    }
+
     private void FixedUpdate()
     /*el fixed update se actualiza mucho mas rapido que el update y esto es necesario para las fisicas
     es una funcion incorporada en Unity que se llama automaticamente en intervalos de tiempo fijos
     para manejar operaciones relacionadas con la fisica del juego.*/
     {
+        if (isDashing)
+        {
+            Rigidbody2D.linearVelocity = new Vector2(dashDirection * DashSpeed, 0f);
+            return;
+        }
+
         if (canMove) {
             float horizontalMovement = Horizontal * Speed * Time.deltaTime;
             Vector2 velocity = new Vector2(horizontalMovement, Rigidbody2D.linearVelocity.y);
