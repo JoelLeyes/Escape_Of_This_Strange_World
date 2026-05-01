@@ -2497,10 +2497,6 @@ PrefabInstance:
       propertyPath: DashDuration
       value: 0.3
       objectReference: {fileID: 0}
-    - target: {fileID: 7507796218499368709, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
-      propertyPath: dashIgnoreCollisionLayers.m_Bits
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 7774087917430264697, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: m_Name
       value: Player
