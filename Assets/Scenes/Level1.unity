@@ -2460,9 +2460,13 @@ MonoBehaviour:
   direccion: 0
   vida: 100
   hitbox: {fileID: 0}
-  attackLockDuration: 0.6
-  attackDistance: 0.4
+  attackLockDuration: 1
+  attackDistance: 0.25
   attackDistanceY: 1.5
+  stopDistance: 0.2
+  danioGolpe: 25
+  radioGolpe: 1.3
+  offsetGolpe: {x: 0.7, y: 0.2}
 --- !u!95 &2069741346
 Animator:
   serializedVersion: 7
