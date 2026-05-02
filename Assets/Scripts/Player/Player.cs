@@ -1,8 +1,16 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
+    [Header("Vida")]
+    [SerializeField] private float vidaMaxima = 100f;
+    [SerializeField] private float tiempoInvulnerable = 0.5f;
+    [SerializeField] private string escenaNivelPerdido = "pantallanivelperdido";
+    [SerializeField] private Slider barraVida;
+
     public float JumpForce;
     public float Speed;
     public float JumpCooldown = 0.1f;
@@ -26,6 +34,9 @@ public class Player : MonoBehaviour
     private bool isDashing;
 
     private bool canMove = true;
+    private float vidaActual;
+    private float nextDamageTime;
+    private bool nivelPerdido;
 
     
 
@@ -35,6 +46,8 @@ public class Player : MonoBehaviour
         Rigidbody2D = GetComponent<Rigidbody2D>(); //esta funcion mete el componente Rigidbody dentro del script
         PlayerCollider = GetComponent<Collider2D>();
         Animator = GetComponent<Animator>();
+        vidaActual = vidaMaxima;
+        ActualizarBarraVida();
 
         if (Animator == null)
         {
@@ -243,6 +256,45 @@ public class Player : MonoBehaviour
     {
         SetDashVisual(false);
         SetDashCollisionIgnore(false);
+    }
+
+    public void RecibirDanio(float danio)
+    {
+        if (nivelPerdido || Time.time < nextDamageTime)
+        {
+            return;
+        }
+
+        vidaActual -= danio;
+        nextDamageTime = Time.time + tiempoInvulnerable;
+        ActualizarBarraVida();
+
+        if (vidaActual <= 0f)
+        {
+            PerderNivel();
+        }
+    }
+
+    private void PerderNivel()
+    {
+        if (nivelPerdido)
+        {
+            return;
+        }
+
+        nivelPerdido = true;
+        SceneManager.LoadScene(escenaNivelPerdido);
+    }
+
+    private void ActualizarBarraVida()
+    {
+        if (barraVida == null)
+        {
+            return;
+        }
+
+        barraVida.maxValue = vidaMaxima;
+        barraVida.value = Mathf.Max(vidaActual, 0f);
     }
 
     private void FixedUpdate()

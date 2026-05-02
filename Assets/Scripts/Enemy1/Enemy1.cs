@@ -21,8 +21,13 @@ public class Enemy1 : MonoBehaviour
     [Header("Combate")]
     public float vida = 100f;
     public GameObject hitbox;
-    [SerializeField] private float attackLockDuration = 0.6f;
-    [SerializeField] private float attackDistance = 0.6f;
+    [SerializeField] private float attackLockDuration = 1.0f;
+    [SerializeField] private float attackDistance = 1.2f;
+    [SerializeField] private float attackDistanceY = 1.5f;
+    [SerializeField] private float stopDistance = 0.20f;
+    [SerializeField] private float danioGolpe = 25f;
+    [SerializeField] private float radioGolpe = 1.3f;
+    [SerializeField] private Vector2 offsetGolpe = new Vector2(0.7f, 0.2f);
 
     private float distanciaDelObjetivo;
     private float distanciaDelObjetivoEjeY;
@@ -37,6 +42,7 @@ public class Enemy1 : MonoBehaviour
     private float baseScaleX;
     private SpriteRenderer[] spriteRenderers;
     private float attackUnlockTime;
+    private bool danioAplicadoEnAtaque;
 
     /***************** EVENTOS DE ANIMACION ******************/
     // Evento de animacion: inicio del golpe
@@ -46,6 +52,7 @@ public class Enemy1 : MonoBehaviour
         {
             hitbox.SetActive(true);
         }
+        AplicarDanioAtaque();
     }
 
     // Evento de animacion: fin del golpe
@@ -142,16 +149,22 @@ public class Enemy1 : MonoBehaviour
 
         if (debePerseguir)
         {
-            transform.position = Vector2.MoveTowards(transform.position, objetivo.transform.position, speed * Time.deltaTime);
+            if (distanciaAbsoluta > stopDistance)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, objetivo.transform.position, speed * Time.deltaTime);
+            }
         }
 
         /********************************* GOLPEAR JUGADOR **********************************/
-        if (puedeAtacar && distanciaAbsoluta < attackDistance && distanciaAbsolutaEjeY < attackDistance)
+        if (puedeAtacar
+            && distanciaAbsoluta <= attackDistance
+            && distanciaAbsolutaEjeY <= attackDistanceY)
         {
             // Frena antes de iniciar el golpe para evitar deslizamientos
             rb.linearVelocity *= 0.95f;
             canMove = false;
             attackUnlockTime = Time.time + attackLockDuration;
+            danioAplicadoEnAtaque = false;
 
             if (rb.linearVelocity.magnitude < 0.1f)
             {
@@ -167,6 +180,7 @@ public class Enemy1 : MonoBehaviour
                 animator.SetBool("melee", true);
             }
 
+            AplicarDanioAtaque();
             puedeAtacar = false;
             return;
         }
@@ -224,6 +238,54 @@ public class Enemy1 : MonoBehaviour
         }
     }
 
+    private void AplicarDanioAtaque()
+    {
+        if (danioAplicadoEnAtaque)
+        {
+            return;
+        }
+
+        Player playerObjetivo = null;
+        if (objetivo != null)
+        {
+            playerObjetivo = objetivo.GetComponent<Player>();
+            if (playerObjetivo == null)
+            {
+                playerObjetivo = objetivo.GetComponentInParent<Player>();
+            }
+        }
+
+        if (playerObjetivo != null)
+        {
+            float dx = Mathf.Abs(objetivo.transform.position.x - transform.position.x);
+            float dy = Mathf.Abs(objetivo.transform.position.y - transform.position.y);
+            if (dx <= attackDistance + 0.35f && dy <= attackDistanceY + 0.6f)
+            {
+                playerObjetivo.RecibirDanio(danioGolpe);
+                danioAplicadoEnAtaque = true;
+                return;
+            }
+        }
+
+        int direccionGolpe = 1;
+        if (objetivo != null && objetivo.transform.position.x < transform.position.x)
+        {
+            direccionGolpe = -1;
+        }
+
+        Vector2 centroGolpe = (Vector2)transform.position + new Vector2(offsetGolpe.x * direccionGolpe, offsetGolpe.y);
+        Collider2D[] impactos = Physics2D.OverlapCircleAll(centroGolpe, radioGolpe);
+        for (int i = 0; i < impactos.Length; i++)
+        {
+            if (impactos[i] != null && impactos[i].GetComponentInParent<Player>() != null)
+            {
+                impactos[i].GetComponentInParent<Player>().RecibirDanio(danioGolpe);
+                danioAplicadoEnAtaque = true;
+                return;
+            }
+        }
+    }
+
     private void SetFacingToTarget(float deltaX)
     {
         if (Mathf.Abs(deltaX) < 0.001f)
@@ -273,6 +335,7 @@ public class Enemy1 : MonoBehaviour
 
         canMove = true;
         puedeAtacar = true;
+        danioAplicadoEnAtaque = false;
         attackUnlockTime = 0f;
 
         if (animator != null)
