@@ -34,11 +34,14 @@ public class Chest : MonoBehaviour
 
         OpenChest();
 
-        // Destruir el proyectil al impactar el cofre.
-        GameObject projectileRoot = other.transform.root.gameObject;
-        if (projectileRoot != gameObject)
+        // Destruir solo proyectiles independientes, no hitboxes hijos del Player.
+        if (other.GetComponentInParent<Player>() == null)
         {
-            Destroy(projectileRoot);
+            GameObject projectileRoot = other.transform.root.gameObject;
+            if (projectileRoot != gameObject)
+            {
+                Destroy(projectileRoot);
+            }
         }
     }
 

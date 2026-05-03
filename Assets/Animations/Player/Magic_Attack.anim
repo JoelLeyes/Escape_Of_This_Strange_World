@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: MagicAttack
+  m_Name: Magic_Attack
   serializedVersion: 7
   m_Legacy: 0
   m_Compressed: 0
@@ -21,9 +21,9 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 4293734525638919370, guid: 91a0aff234b170a40bd13df915ba1fc9, type: 3}
+      value: {fileID: 7342779557116331899, guid: fb9d9655bd453884da419e85beee1303, type: 3}
     - time: 0.083333336
-      value: {fileID: -3017444291285114680, guid: 91a0aff234b170a40bd13df915ba1fc9, type: 3}
+      value: {fileID: 3254623094958332900, guid: fb9d9655bd453884da419e85beee1303, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -46,8 +46,8 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: 4293734525638919370, guid: 91a0aff234b170a40bd13df915ba1fc9, type: 3}
-    - {fileID: -3017444291285114680, guid: 91a0aff234b170a40bd13df915ba1fc9, type: 3}
+    - {fileID: 7342779557116331899, guid: fb9d9655bd453884da419e85beee1303, type: 3}
+    - {fileID: 3254623094958332900, guid: fb9d9655bd453884da419e85beee1303, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -72,4 +72,18 @@ AnimationClip:
   m_EulerEditorCurves: []
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
-  m_Events: []
+  m_Events:
+  - time: 0
+    functionName: Attack_Begin
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
+  - time: 0.16666667
+    functionName: Attack_End
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0

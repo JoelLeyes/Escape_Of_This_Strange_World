@@ -4,6 +4,13 @@ using UnityEngine.UI;
 
 public class Player : MonoBehaviour
 {
+    private enum AttackType
+    {
+        None,
+        Magic,
+        Sword
+    }
+
     [Header("Vida")]
     [SerializeField] private float vidaMaxima = 100f;
     [SerializeField] private float tiempoInvulnerable = 0.5f;
@@ -16,8 +23,10 @@ public class Player : MonoBehaviour
     public float DashDuration = 0.12f;
     public float DashCooldown = 0.6f;
     [SerializeField] private string dashAnimatorBool = "Dashing";
+    [SerializeField] private string swordAnimatorTrigger = "Sword";
     [SerializeField] private LayerMask dashIgnoreCollisionLayers;
     [SerializeField] private Fire firePrefab;
+    [SerializeField] private PlayerAttackHitbox swordHitbox;
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
     private Collider2D PlayerCollider;
@@ -30,6 +39,8 @@ public class Player : MonoBehaviour
     private float dashEndTime;
     private int dashDirection = 1;
     private bool isDashing;
+    private bool attackActive;
+    private AttackType currentAttackType = AttackType.None;
 
     private bool canMove = true;
     private float vidaActual;
@@ -44,6 +55,11 @@ public class Player : MonoBehaviour
         Rigidbody2D = GetComponent<Rigidbody2D>(); //esta funcion mete el componente Rigidbody dentro del script
         PlayerCollider = GetComponent<Collider2D>();
         Animator = GetComponent<Animator>();
+        if (swordHitbox == null)
+        {
+            swordHitbox = GetComponentInChildren<PlayerAttackHitbox>(true);
+        }
+
         vidaActual = vidaMaxima;
         ActualizarBarraVida();
 
@@ -114,24 +130,13 @@ public class Player : MonoBehaviour
         }
 
         //SALTO
-        if (IsJumpPressed() && Grounded && Time.time >= nextJumpTime) {
+        if (canMove && IsJumpPressed() && Grounded && Time.time >= nextJumpTime) {
             Jump();
             nextJumpTime = Time.time + JumpCooldown;
         }
 
+        SwordAttack();
         MagicAttack();
-        // Controlar el movimiento según la animación mágica
-        if (Animator != null)
-        {
-            if (Animator.GetCurrentAnimatorStateInfo(0).IsName("Magic_Attack"))
-            {
-                canMove = false;
-            }
-            else if (!canMove)
-            {
-                canMove = true;
-            }
-        }
     }
     private float GetHorizontalInput()
     {
@@ -180,12 +185,15 @@ public class Player : MonoBehaviour
             || !Keyboard.current.qKey.wasPressedThisFrame
             || !Grounded
             || Animator == null
+            || attackActive
             || !Cooldown(0.35f))
         {
             return;
         }
 
         canMove = false;
+        attackActive = true;
+        currentAttackType = AttackType.Magic;
         Animator.SetTrigger("Magic");
 
         if (firePrefab == null)
@@ -197,6 +205,57 @@ public class Player : MonoBehaviour
         int direction = transform.right.x >= 0f ? 1 : -1;
         Fire fire = Instantiate(firePrefab, transform.position, Quaternion.identity);
         fire.Initialize(direction);
+    }
+
+    public void Magic_Cast()
+    {
+        // Se deja por compatibilidad con eventos de animación, pero la magia vuelve a crear el fuego al presionar Q.
+    }
+
+    private void SwordAttack()
+    {
+        if (Keyboard.current == null
+            || !Keyboard.current.jKey.wasPressedThisFrame
+            || !Grounded
+            || Animator == null
+            || attackActive
+            || !canMove)
+        {
+            return;
+        }
+
+        canMove = false;
+        attackActive = true;
+        currentAttackType = AttackType.Sword;
+        Animator.SetTrigger(swordAnimatorTrigger);
+    }
+
+    public void Attack_Begin()
+    {
+        canMove = false;
+        attackActive = true;
+
+        if (Animator != null)
+        {
+            Animator.SetBool("Running", false);
+        }
+
+        if (currentAttackType == AttackType.Sword && swordHitbox != null)
+        {
+            swordHitbox.BeginAttack();
+        }
+    }
+
+    public void Attack_End()
+    {
+        if (currentAttackType == AttackType.Sword && swordHitbox != null)
+        {
+            swordHitbox.EndAttack();
+        }
+
+        attackActive = false;
+        canMove = true;
+        currentAttackType = AttackType.None;
     }
 
     private bool Cooldown(float cooldown)
