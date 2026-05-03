@@ -1,6 +1,5 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
-using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class Player : MonoBehaviour
@@ -8,7 +7,6 @@ public class Player : MonoBehaviour
     [Header("Vida")]
     [SerializeField] private float vidaMaxima = 100f;
     [SerializeField] private float tiempoInvulnerable = 0.5f;
-    [SerializeField] private string escenaNivelPerdido = "pantallanivelperdido";
     [SerializeField] private Slider barraVida;
 
     public float JumpForce;
@@ -283,7 +281,14 @@ public class Player : MonoBehaviour
         }
 
         nivelPerdido = true;
-        SceneManager.LoadScene(escenaNivelPerdido);
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.GameOver();
+        }
+        else
+        {
+            Debug.LogError("Player: no se encontro GameManager para cargar la escena de derrota.", this);
+        }
     }
 
     private void ActualizarBarraVida()

@@ -1,47 +1,71 @@
 using UnityEngine;
-using UnityEngine.SceneManagement;
 
 public sealed class MenuManager : MonoBehaviour
 {
-    [Header("Escenas (Build Settings)")]
-    [SerializeField] private int playSceneBuildIndex = 1;
-    [SerializeField] private int menuSceneBuildIndex = 0;
-
-    private void Awake()
-    {
-        // Por si vienes de un pause/slowmo, el menú debe quedar normal.
-        Time.timeScale = 1f;
-    }
-
     public void Play()
     {
-        if (playSceneBuildIndex < 0)
+        if (GameManager.Instance == null)
         {
-            Debug.LogWarning("MenuManager: 'playSceneBuildIndex' invalido.");
+            Debug.LogWarning("MenuManager: no se encontro GameManager.");
             return;
         }
 
-        SceneManager.LoadScene(playSceneBuildIndex);
+        GameManager.Instance.StartGame();
     }
 
     public void BackToMenu()
     {
-        if (menuSceneBuildIndex < 0)
+        if (GameManager.Instance == null)
         {
-            Debug.LogWarning("MenuManager: 'menuSceneBuildIndex' invalido.");
+            Debug.LogWarning("MenuManager: no se encontro GameManager.");
             return;
         }
 
-        SceneManager.LoadScene(menuSceneBuildIndex);
+        GameManager.Instance.BackToMenu();
+    }
+
+    public void PauseGame()
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("MenuManager: no se encontro GameManager.");
+            return;
+        }
+
+        GameManager.Instance.PauseGame();
+    }
+
+    public void ResumeGame()
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("MenuManager: no se encontro GameManager.");
+            return;
+        }
+
+        GameManager.Instance.ResumeGame();
+    }
+
+    public void TogglePause()
+    {
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("MenuManager: no se encontro GameManager.");
+            return;
+        }
+
+        GameManager.Instance.TogglePause();
     }
 
     public void Quit()
     {
-        Application.Quit();
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("MenuManager: no se encontro GameManager.");
+            Application.Quit();
+            return;
+        }
 
-#if UNITY_EDITOR
-        // Para que el boton funcione cuando pruebas en el Editor.
-        UnityEditor.EditorApplication.isPlaying = false;
-#endif
+        GameManager.Instance.QuitGame();
     }
 }
