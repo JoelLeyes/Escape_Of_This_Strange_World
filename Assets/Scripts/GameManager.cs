@@ -11,6 +11,9 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField] private string gameOverSceneName = "PantallaNivelPerdido";
 
     private bool isPaused;
+    private bool hasCheckpoint;
+    private Vector3 checkpointPosition;
+    private string checkpointSceneName;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -39,17 +42,31 @@ public sealed class GameManager : MonoBehaviour
 
     public void StartGame()
     {
+        ClearCheckpoint();
         LoadScene(gameplaySceneName);
     }
 
     public void BackToMenu()
     {
+        ClearCheckpoint();
         LoadScene(menuSceneName);
     }
 
     public void GameOver()
     {
         LoadScene(gameOverSceneName);
+    }
+
+    public void ContinueFromCheckpoint()
+    {
+        Debug.Log($"ContinueFromCheckpoint llamado. Has checkpoint: {hasCheckpoint}, posición: {checkpointPosition}");
+        if (hasCheckpoint && !string.IsNullOrWhiteSpace(checkpointSceneName))
+        {
+            LoadScene(checkpointSceneName);
+            return;
+        }
+
+        LoadScene(gameplaySceneName);
     }
 
     public void ReloadCurrentScene()
@@ -104,5 +121,45 @@ public sealed class GameManager : MonoBehaviour
 
         ResumeGame();
         SceneManager.LoadScene(sceneName);
+    }
+
+    public void RegisterCheckpoint(Vector3 position, string sceneName)
+    {
+        checkpointPosition = position;
+        checkpointSceneName = sceneName;
+        hasCheckpoint = true;
+        Debug.Log($"Checkpoint guardado en posición {position} en escena {sceneName}");
+    }
+
+    public void ApplyCheckpoint(Transform target, Rigidbody2D rigidbody2D)
+    {
+        if (!hasCheckpoint || target == null)
+        {
+            Debug.Log($"ApplyCheckpoint: No se aplicó. HasCheckpoint: {hasCheckpoint}, Target null: {target == null}");
+            return;
+        }
+
+        if (!string.IsNullOrWhiteSpace(checkpointSceneName) && SceneManager.GetActiveScene().name != checkpointSceneName)
+        {
+            Debug.Log($"ApplyCheckpoint: Escenas no coinciden. Guardada: {checkpointSceneName}, Actual: {SceneManager.GetActiveScene().name}");
+            return;
+        }
+
+        Debug.Log($"Aplicando checkpoint en posición {checkpointPosition}");
+        Vector3 positionWithZero = new Vector3(checkpointPosition.x, checkpointPosition.y, 0f);
+        target.position = positionWithZero;
+
+        if (rigidbody2D != null)
+        {
+            rigidbody2D.linearVelocity = Vector2.zero;
+            rigidbody2D.angularVelocity = 0f;
+        }
+    }
+
+    private void ClearCheckpoint()
+    {
+        hasCheckpoint = false;
+        checkpointPosition = default;
+        checkpointSceneName = string.Empty;
     }
 }

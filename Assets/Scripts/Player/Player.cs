@@ -63,6 +63,11 @@ public class Player : MonoBehaviour
         vidaActual = vidaMaxima;
         ActualizarBarraVida();
 
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ApplyCheckpoint(transform, Rigidbody2D);
+        }
+
         if (Animator == null)
         {
             Debug.LogWarning("No Animator found on Player. Animation states will be skipped.", this);

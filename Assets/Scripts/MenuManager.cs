@@ -46,6 +46,18 @@ public sealed class MenuManager : MonoBehaviour
         GameManager.Instance.ResumeGame();
     }
 
+    public void ContinueGame()
+    {
+        Debug.Log("MenuManager.ContinueGame() fue llamado");
+        if (GameManager.Instance == null)
+        {
+            Debug.LogWarning("MenuManager: no se encontro GameManager.");
+            return;
+        }
+
+        GameManager.Instance.ContinueFromCheckpoint();
+    }
+
     public void TogglePause()
     {
         if (GameManager.Instance == null)
