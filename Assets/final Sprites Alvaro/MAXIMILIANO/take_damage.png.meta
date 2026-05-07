@@ -1,10 +1,13 @@
 fileFormatVersion: 2
-guid: a3d838ae2e1e3c145aa89f271cc99f73
+guid: 054db5a1dcc8fb64bb84d4299efaaa15
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: 7638543970991127717
-    second: Trap_axe_0
+      213: -385867246967894706
+    second: take_damage_0
+  - first:
+      213: -6476250973125256214
+    second: take_damage_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +116,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: Trap_axe_0
+      name: take_damage_0
       rect:
         serializedVersion: 2
-        x: 9
-        y: 0
-        width: 49
-        height: 250
+        x: 13
+        y: 7
+        width: 30
+        height: 53
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +131,30 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 5acb028554f810a60800000000000000
-      internalID: 7638543970991127717
+      spriteID: e4d450688cf15aaf0800000000000000
+      internalID: -385867246967894706
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: take_damage_1
+      rect:
+        serializedVersion: 2
+        x: 77
+        y: 7
+        width: 30
+        height: 53
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: aeb57967d0cbf16a0800000000000000
+      internalID: -6476250973125256214
       vertices: []
       indices: 
       edges: []
@@ -148,7 +173,8 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      Trap_axe_0: 7638543970991127717
+      take_damage_0: -385867246967894706
+      take_damage_1: -6476250973125256214
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
