@@ -1,10 +1,10 @@
 fileFormatVersion: 2
-guid: 00a8f9c318491e64987e29160080d1ff
+guid: a3d838ae2e1e3c145aa89f271cc99f73
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -6442547308074922596
-    second: WALL_0
+      213: 7638543970991127717
+    second: Trap_axe_0
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -113,13 +113,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: WALL_0
+      name: Trap_axe_0
       rect:
         serializedVersion: 2
-        x: 85
-        y: 3
-        width: 121
-        height: 195
+        x: 9
+        y: 0
+        width: 49
+        height: 166
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -128,8 +128,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: c9d8b8d7b597796a0800000000000000
-      internalID: -6442547308074922596
+      spriteID: 5acb028554f810a60800000000000000
+      internalID: 7638543970991127717
       vertices: []
       indices: 
       edges: []
@@ -148,7 +148,7 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      WALL_0: -6442547308074922596
+      Trap_axe_0: 7638543970991127717
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
