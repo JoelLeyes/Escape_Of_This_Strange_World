@@ -35,7 +35,7 @@ public class Chest : MonoBehaviour
         OpenChest();
 
         // Destruir solo proyectiles independientes, no hitboxes hijos del Player.
-        if (other.GetComponentInParent<Player>() == null)
+        if (other.GetComponentInParent<Player>() == null && !other.CompareTag("Object_Destroyable"))
         {
             GameObject projectileRoot = other.transform.root.gameObject;
             if (projectileRoot != gameObject)

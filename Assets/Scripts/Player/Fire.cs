@@ -10,10 +10,12 @@ public class Fire : MonoBehaviour
 
     private int direction = 1;
     private Rigidbody2D rb;
+    private Animator animator;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
+        animator = GetComponent<Animator>();
         gameObject.tag = attackTag;
 
         if (rb != null)
@@ -37,28 +39,54 @@ public class Fire : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero; // Stop movement
+        }
+
         transform.position += Vector3.right * (direction * speed * Time.deltaTime);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (!other.CompareTag(enemyTag))
+        if (!other.CompareTag(enemyTag) && !other.CompareTag("Object_Destroyable"))
         {
             return;
         }
 
+        // Stop movement
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+            rb.isKinematic = true; // Ensure it doesn't move further
+        }
+
+        // Handle damage for enemies
         Enemy1 enemy = other.GetComponent<Enemy1>();
         if (enemy == null)
         {
             enemy = other.GetComponentInParent<Enemy1>();
         }
 
-        if (enemy == null)
+        if (enemy != null)
         {
-            return;
+            enemy.RecibirDanio(damage);
         }
 
-        enemy.RecibirDanio(damage);
+        // Trigger explosion animation
+        if (animator != null)
+        {
+            animator.SetTrigger("Target");
+        }
+        else
+        {
+            Destroy(gameObject); // Fallback in case animator is missing
+        }
+    }
+
+    // This method will be called by the animation event Burst_End
+    public void Burst_End()
+    {
         Destroy(gameObject);
     }
 }
