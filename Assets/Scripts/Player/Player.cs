@@ -47,7 +47,13 @@ public class Player : MonoBehaviour
     private float nextDamageTime;
     private bool nivelPerdido;
 
-    
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision.gameObject.CompareTag("Trap"))
+        {
+            RecibirDanio(vidaMaxima); // Inflict fatal damage
+        }
+    }
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
