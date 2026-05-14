@@ -351,6 +351,31 @@ public class Player : MonoBehaviour
         }
 
         nivelPerdido = true;
+        // Desactivar control y asegurar que el jugador no siga actuando
+        canMove = false;
+        attackActive = false;
+
+        if (Animator != null)
+        {
+            Animator.SetTrigger("Dead");
+            // La transición a la pantalla de fin ocurrirá desde el evento de animación Dead_End
+            return;
+        }
+
+        // Si no hay Animator, caemos a la ruta de respaldo y cargamos GameOver inmediatamente
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.GameOver();
+        }
+        else
+        {
+            Debug.LogError("Player: no se encontro GameManager para cargar la escena de derrota.", this);
+        }
+    }
+
+    // Este método será llamado por el evento de animación `Dead_End` al finalizar la animación de muerte
+    public void Dead_End()
+    {
         if (GameManager.Instance != null)
         {
             GameManager.Instance.GameOver();
