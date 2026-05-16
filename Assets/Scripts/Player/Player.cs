@@ -337,6 +337,11 @@ public class Player : MonoBehaviour
         nextDamageTime = Time.time + tiempoInvulnerable;
         ActualizarBarraVida();
 
+        if (vidaActual > 0f && Animator != null)
+        {
+            Animator.SetTrigger("Damage");
+        }
+
         if (vidaActual <= 0f)
         {
             PerderNivel();
