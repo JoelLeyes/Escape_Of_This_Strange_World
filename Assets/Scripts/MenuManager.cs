@@ -1,7 +1,19 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public sealed class MenuManager : MonoBehaviour
 {
+    [SerializeField] private CanvasGroup pauseMenuCanvasGroup;
+
+    private void Update()
+    {
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            Debug.Log($"ESC detectado. GameManager.Instance: {GameManager.Instance}, pauseMenuCanvasGroup: {pauseMenuCanvasGroup}");
+            TogglePause();
+        }
+    }
+
     public void Play()
     {
         if (GameManager.Instance == null)
@@ -33,6 +45,13 @@ public sealed class MenuManager : MonoBehaviour
         }
 
         GameManager.Instance.PauseGame();
+
+        if (pauseMenuCanvasGroup != null)
+        {
+            pauseMenuCanvasGroup.alpha = 1f;
+            pauseMenuCanvasGroup.blocksRaycasts = true;
+            pauseMenuCanvasGroup.interactable = true;
+        }
     }
 
     public void ResumeGame()
@@ -44,6 +63,13 @@ public sealed class MenuManager : MonoBehaviour
         }
 
         GameManager.Instance.ResumeGame();
+
+        if (pauseMenuCanvasGroup != null)
+        {
+            pauseMenuCanvasGroup.alpha = 0f;
+            pauseMenuCanvasGroup.blocksRaycasts = false;
+            pauseMenuCanvasGroup.interactable = false;
+        }
     }
 
     public void ContinueGame()
@@ -66,7 +92,16 @@ public sealed class MenuManager : MonoBehaviour
             return;
         }
 
+        bool willBePaused = !GameManager.Instance.IsGamePaused();
+
         GameManager.Instance.TogglePause();
+
+        if (pauseMenuCanvasGroup != null)
+        {
+            pauseMenuCanvasGroup.alpha = willBePaused ? 1f : 0f;
+            pauseMenuCanvasGroup.blocksRaycasts = willBePaused;
+            pauseMenuCanvasGroup.interactable = willBePaused;
+        }
     }
 
     public void Quit()

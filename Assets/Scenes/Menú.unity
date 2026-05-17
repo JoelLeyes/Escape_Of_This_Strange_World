@@ -969,8 +969,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ce49eab569b943f438dfb9dca4de2dce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MenuManager
-  playSceneBuildIndex: 1
-  menuSceneBuildIndex: 0
+  pauseMenuCanvasGroup: {fileID: 0}
 --- !u!4 &1338800522
 Transform:
   m_ObjectHideFlags: 0

@@ -83,6 +83,12 @@ public class Player : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        // No procesar input si el juego está pausado
+        if (GameManager.Instance != null && GameManager.Instance.IsGamePaused())
+        {
+            return;
+        }
+
         if (isDashing && Time.time >= dashEndTime)
         {
             StopDash();

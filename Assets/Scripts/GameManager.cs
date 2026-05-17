@@ -102,6 +102,11 @@ public sealed class GameManager : MonoBehaviour
         PauseGame();
     }
 
+    public bool IsGamePaused()
+    {
+        return isPaused || Time.timeScale == 0f;
+    }
+
     public void QuitGame()
     {
         Application.Quit();
