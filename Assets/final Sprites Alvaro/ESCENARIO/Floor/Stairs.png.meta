@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 94ed81ab8d7c3f64ebe4e061521f2b66
+guid: 48df62d0953c7d1448a742c2fd3581fd
 TextureImporter:
   internalIDToNameTable:
   - first:
@@ -116,17 +116,22 @@ TextureImporter:
       name: Stairs_0
       rect:
         serializedVersion: 2
-        x: 3
-        y: 10
-        width: 135
-        height: 83
+        x: 0
+        y: 0
+        width: 335
+        height: 300
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
-      physicsShape: []
-      tessellationDetail: -1
+      physicsShape:
+      - - {x: 167.5, y: 111}
+        - {x: 167.5, y: 150}
+        - {x: 132.5, y: 150}
+        - {x: -167.5, y: -150}
+        - {x: -102.5, y: -150}
+      tessellationDetail: 0
       bones: []
       spriteID: f0a9c034767521bd0800000000000000
       internalID: -2660968328804394481
@@ -138,7 +143,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 44a55a49072842c4a8638f8e63152a2a
     internalID: 0
     vertices: []
     indices: 
