@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
@@ -24,7 +25,6 @@ public class Player : MonoBehaviour
     public float DashCooldown = 0.6f;
     [SerializeField] private string dashAnimatorBool = "Dashing";
     [SerializeField] private string swordAnimatorTrigger = "Sword";
-    [SerializeField] private LayerMask dashIgnoreCollisionLayers;
     [SerializeField] private Fire firePrefab;
     [SerializeField] private PlayerAttackHitbox swordHitbox;
 
@@ -39,6 +39,7 @@ public class Player : MonoBehaviour
     private float dashEndTime;
     private int dashDirection = 1;
     private bool isDashing;
+    private readonly List<Collider2D> ignoredEnemyColliders = new List<Collider2D>();
     private bool attackActive;
     private AttackType currentAttackType = AttackType.None;
 
@@ -49,7 +50,17 @@ public class Player : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
-        if (collision.gameObject.CompareTag("Trap"))
+        HandleHazardCollision(collision.gameObject);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        HandleHazardCollision(other.gameObject);
+    }
+
+    private void HandleHazardCollision(GameObject other)
+    {
+        if (other.CompareTag("Trap"))
         {
             RecibirDanio(vidaMaxima); // Inflict fatal damage
         }
@@ -143,7 +154,7 @@ public class Player : MonoBehaviour
             dashEndTime = Time.time + DashDuration;
             nextDashTime = Time.time + DashCooldown;
             SetDashVisual(true);
-            SetDashCollisionIgnore(true);
+            SetDashEnemyCollisionIgnore(true);
         }
 
         //SALTO
@@ -295,7 +306,7 @@ public class Player : MonoBehaviour
     {
         isDashing = false;
         SetDashVisual(false);
-        SetDashCollisionIgnore(false);
+        SetDashEnemyCollisionIgnore(false);
     }
 
     private void SetDashVisual(bool active)
@@ -308,33 +319,66 @@ public class Player : MonoBehaviour
         Animator.SetBool(dashAnimatorBool, active);
     }
 
-    private void SetDashCollisionIgnore(bool ignore)
+    private void SetDashEnemyCollisionIgnore(bool ignore)
     {
-        int layersToIgnore = dashIgnoreCollisionLayers.value;
-        if (layersToIgnore == 0)
+        if (PlayerCollider == null)
         {
             return;
         }
 
-        int playerLayer = gameObject.layer;
-        for (int layer = 0; layer < 32; layer++)
+        if (ignore)
         {
-            if ((layersToIgnore & (1 << layer)) != 0)
+            if (ignoredEnemyColliders.Count > 0)
             {
-                Physics2D.IgnoreLayerCollision(playerLayer, layer, ignore);
+                SetDashEnemyCollisionIgnore(false);
+            }
+
+            Enemy1[] enemies = FindObjectsByType<Enemy1>(FindObjectsSortMode.None);
+            for (int i = 0; i < enemies.Length; i++)
+            {
+                if (enemies[i] == null)
+                {
+                    continue;
+                }
+
+                Collider2D[] enemyColliders = enemies[i].GetComponentsInChildren<Collider2D>(true);
+                for (int j = 0; j < enemyColliders.Length; j++)
+                {
+                    Collider2D enemyCollider = enemyColliders[j];
+                    if (enemyCollider == null || enemyCollider == PlayerCollider)
+                    {
+                        continue;
+                    }
+
+                    Physics2D.IgnoreCollision(PlayerCollider, enemyCollider, true);
+                    ignoredEnemyColliders.Add(enemyCollider);
+                }
+            }
+
+            return;
+        }
+
+        for (int i = 0; i < ignoredEnemyColliders.Count; i++)
+        {
+            Collider2D enemyCollider = ignoredEnemyColliders[i];
+            if (enemyCollider != null)
+            {
+                Physics2D.IgnoreCollision(PlayerCollider, enemyCollider, false);
             }
         }
+
+        ignoredEnemyColliders.Clear();
     }
 
     private void OnDisable()
     {
         SetDashVisual(false);
-        SetDashCollisionIgnore(false);
+        SetDashEnemyCollisionIgnore(false);
     }
 
     public void RecibirDanio(float danio)
     {
-        if (nivelPerdido || Time.time < nextDamageTime)
+        if (nivelPerdido || isDashing || Time.time < nextDamageTime)
         {
             return;
         }
