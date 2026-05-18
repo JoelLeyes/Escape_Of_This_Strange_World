@@ -174,3 +174,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 44cdbd8bf1fb95841a4318e50aad4498, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  interactionRadius: 1.5
+  interactionMessage: Presione E para abrir
+  promptYOffset: 0.4
