@@ -1,28 +1,16 @@
 fileFormatVersion: 2
-guid: 5875682ee8a03a846a546b47a03f7ffb
+guid: ca8510b61a1e7334a962893b7c280cc2
 TextureImporter:
   internalIDToNameTable:
   - first:
-      213: -3026322672829602739
-    second: KEY_0
+      213: -8933023671105948139
+    second: bow_attack_0
   - first:
-      213: 1409196406324489491
-    second: KEY_1
+      213: -9170625467857772641
+    second: bow_attack_1
   - first:
-      213: 7082148251462729985
-    second: KEY_2
-  - first:
-      213: 4206655089311867618
-    second: KEY_3
-  - first:
-      213: -9101305836979029553
-    second: KEY_4
-  - first:
-      213: -1746703381290214205
-    second: KEY_5
-  - first:
-      213: -2180654630829427214
-    second: KEY_6
+      213: -5075650373144219783
+    second: bow_attack_2
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -55,7 +43,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: 1
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -131,13 +119,13 @@ TextureImporter:
     serializedVersion: 2
     sprites:
     - serializedVersion: 2
-      name: KEY_0
+      name: bow_attack_0
       rect:
         serializedVersion: 2
-        x: 0
-        y: 6
-        width: 26
-        height: 14
+        x: 13
+        y: 5
+        width: 52
+        height: 57
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -146,20 +134,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: d44e74e20975006d0800000000000000
-      internalID: -3026322672829602739
+      spriteID: 516f291ec46870480800000000000000
+      internalID: -8933023671105948139
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: KEY_1
+      name: bow_attack_1
       rect:
         serializedVersion: 2
-        x: 26
-        y: 4
-        width: 26
-        height: 14
+        x: 77
+        y: 5
+        width: 51
+        height: 57
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -168,20 +156,20 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 31d6ab15aa87e8310800000000000000
-      internalID: 1409196406324489491
+      spriteID: f9fdf2c99b46bb080800000000000000
+      internalID: -9170625467857772641
       vertices: []
       indices: 
       edges: []
       weights: []
     - serializedVersion: 2
-      name: KEY_2
+      name: bow_attack_2
       rect:
         serializedVersion: 2
-        x: 52
-        y: 2
-        width: 26
-        height: 14
+        x: 141
+        y: 5
+        width: 47
+        height: 57
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -190,96 +178,8 @@ TextureImporter:
       physicsShape: []
       tessellationDetail: -1
       bones: []
-      spriteID: 1010717df48d84260800000000000000
-      internalID: 7082148251462729985
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: KEY_3
-      rect:
-        serializedVersion: 2
-        x: 78
-        y: 0
-        width: 26
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2e2e503148a016a30800000000000000
-      internalID: 4206655089311867618
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: KEY_4
-      rect:
-        serializedVersion: 2
-        x: 104
-        y: 2
-        width: 26
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: fc9fca2ef8aa1b180800000000000000
-      internalID: -9101305836979029553
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: KEY_5
-      rect:
-        serializedVersion: 2
-        x: 130
-        y: 4
-        width: 26
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 3cc1936778672c7e0800000000000000
-      internalID: -1746703381290214205
-      vertices: []
-      indices: 
-      edges: []
-      weights: []
-    - serializedVersion: 2
-      name: KEY_6
-      rect:
-        serializedVersion: 2
-        x: 156
-        y: 6
-        width: 26
-        height: 14
-      alignment: 0
-      pivot: {x: 0, y: 0}
-      border: {x: 0, y: 0, z: 0, w: 0}
-      customData: 
-      outline: []
-      physicsShape: []
-      tessellationDetail: -1
-      bones: []
-      spriteID: 2f5f997ba22ccb1e0800000000000000
-      internalID: -2180654630829427214
+      spriteID: 97fe8a8a0eaaf89b0800000000000000
+      internalID: -5075650373144219783
       vertices: []
       indices: 
       edges: []
@@ -298,13 +198,9 @@ TextureImporter:
     spriteCustomMetadata:
       entries: []
     nameFileIdTable:
-      KEY_0: -3026322672829602739
-      KEY_1: 1409196406324489491
-      KEY_2: 7082148251462729985
-      KEY_3: 4206655089311867618
-      KEY_4: -9101305836979029553
-      KEY_5: -1746703381290214205
-      KEY_6: -2180654630829427214
+      bow_attack_0: -8933023671105948139
+      bow_attack_1: -9170625467857772641
+      bow_attack_2: -5075650373144219783
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
