@@ -3182,7 +3182,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: '::'
   objetivo: {fileID: 1811171530}
   targetTag: Player
-  speed: 1
+  speed: 0.6
   debePerseguir: 0
   distancia: 5
   invertFacing: 1
@@ -3198,9 +3198,10 @@ MonoBehaviour:
   danioGolpe: 25
   radioGolpe: 1.3
   offsetGolpe: {x: 0.7, y: 0.2}
-  rangedDistance: 3
+  rangedDistance: 1.5
   armPrefab: {fileID: 1753058058017680630, guid: dcc59339d160d0c439b5f4a9643da28d, type: 3}
   rangedSpawnOffset: {x: 0.5, y: 0.3}
+  attackAnimatorBool: attack
 --- !u!1 &1266469339
 GameObject:
   m_ObjectHideFlags: 0

@@ -7,7 +7,7 @@ public sealed class PlayerAttackHitbox : MonoBehaviour
     [SerializeField] private string enemyTag = "Enemy";
     [SerializeField] private BoxCollider2D attackCollider;
 
-    private readonly HashSet<Enemy1> hitEnemies = new HashSet<Enemy1>();
+    private readonly HashSet<Component> hitEnemies = new HashSet<Component>();
     private bool attackActive;
 
     private void Awake()
@@ -73,13 +73,29 @@ public sealed class PlayerAttackHitbox : MonoBehaviour
             return;
         }
 
-        Enemy1 enemy = other.GetComponentInParent<Enemy1>();
-        if (enemy == null || hitEnemies.Contains(enemy))
+        Enemy1 enemy1 = other.GetComponentInParent<Enemy1>();
+        Enemy2 enemy2 = other.GetComponentInParent<Enemy2>();
+
+        if (enemy1 == null && enemy2 == null)
         {
             return;
         }
 
-        hitEnemies.Add(enemy);
-        enemy.RecibirDanio(damage);
+        Component targetEnemy = (Component)enemy1 ?? (Component)enemy2;
+        if (hitEnemies.Contains(targetEnemy))
+        {
+            return;
+        }
+
+        hitEnemies.Add(targetEnemy);
+
+        if (enemy1 != null)
+        {
+            enemy1.RecibirDanio(damage);
+        }
+        else if (enemy2 != null)
+        {
+            enemy2.RecibirDanio(damage);
+        }
     }
 }

@@ -112,7 +112,20 @@ public class Enemy2 : MonoBehaviour
 
         if (animator != null)
         {
+            // Forzamos salida de estados de ataque para que no bloquee la reaccion de daño.
+            animator.SetBool("melee", false);
+            animator.SetBool("ranged", false);
+            animator.SetBool("debeAtacar", false);
+            animator.SetBool(attackAnimatorBool, false);
             animator.SetTrigger("hurt");
+
+            // Fallback: si el trigger no interrumpe por transiciones del Animator,
+            // reproducimos directamente el estado Damage.
+            int damageState = Animator.StringToHash("Base Layer.Damage");
+            if (animator.HasState(0, damageState))
+            {
+                animator.CrossFadeInFixedTime(damageState, 0.02f);
+            }
         }
     }
 
