@@ -2,25 +2,19 @@ using UnityEngine;
 
 public class ArmSkeleton : MonoBehaviour
 {
-    [SerializeField] private float speed = 5f;
-    [SerializeField] private float rotationSpeed = 720f;
+    [SerializeField] private float speed = 3f;
+    [SerializeField] private float rotationSpeed = 1080f;
     [SerializeField] private float lifeTime = 2f;
+    [SerializeField] private float damage = 20f;
+    [SerializeField] private string playerTag = "Player";
 
     private Rigidbody2D rb;
     private int direction = 1;
+    private bool hasHit;
 
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
-
-        Collider2D[] colliders = GetComponentsInChildren<Collider2D>(true);
-        for (int i = 0; i < colliders.Length; i++)
-        {
-            if (colliders[i] != null)
-            {
-                colliders[i].enabled = false;
-            }
-        }
 
         if (rb != null)
         {
@@ -41,6 +35,11 @@ public class ArmSkeleton : MonoBehaviour
 
     private void Update()
     {
+        if (hasHit)
+        {
+            return;
+        }
+
         transform.Rotate(0f, 0f, rotationSpeed * Time.deltaTime);
 
         if (rb != null)
@@ -51,5 +50,35 @@ public class ArmSkeleton : MonoBehaviour
         {
             transform.position += Vector3.right * (direction * speed * Time.deltaTime);
         }
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (hasHit || other == null)
+        {
+            return;
+        }
+
+        Transform root = other.transform.root;
+        bool esPlayer = other.CompareTag(playerTag) || (root != null && root.CompareTag(playerTag));
+        if (!esPlayer)
+        {
+            return;
+        }
+
+        Player player = other.GetComponentInParent<Player>();
+        if (player == null && root != null)
+        {
+            player = root.GetComponentInChildren<Player>();
+        }
+
+        if (player == null)
+        {
+            return;
+        }
+
+        hasHit = true;
+        player.RecibirDanio(damage);
+        Destroy(gameObject);
     }
 }
