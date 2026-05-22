@@ -8,6 +8,7 @@ TagManager:
   - Player_Attack
   - Trap
   - Object_Destroyable
+  - Enemy_Attack
   layers:
   - Default
   - TransparentFX
