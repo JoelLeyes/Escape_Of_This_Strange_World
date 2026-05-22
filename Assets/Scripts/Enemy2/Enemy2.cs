@@ -7,7 +7,7 @@ public class Enemy2 : MonoBehaviour
     [SerializeField] private string targetTag = "Player";
 
     [Header("Movimiento")]
-    public float speed = 0.3f;
+    public float speed = 0.12f;
     public bool debePerseguir;
     public float distancia = 5f;
     [SerializeField] private bool invertFacing = false;
@@ -29,9 +29,10 @@ public class Enemy2 : MonoBehaviour
     [SerializeField] private Vector2 offsetGolpe = new Vector2(0.7f, 0.2f);
 
     [Header("Ataque a distancia")]
-    [SerializeField] private float rangedDistance = 3.0f;
+    [SerializeField] private float rangedDistance = 1.5f;
     [SerializeField] private GameObject armPrefab;
     [SerializeField] private Vector2 rangedSpawnOffset = new Vector2(0.5f, 0.3f);
+    [SerializeField] private string attackAnimatorBool = "attack";
 
     private float distanciaDelObjetivo;
     private float distanciaDelObjetivoEjeY;
@@ -41,6 +42,8 @@ public class Enemy2 : MonoBehaviour
     private bool canMove = true;
     private bool puedeAtacar = true;
     private bool puedeAtacarRanged = true;
+    private bool estaAtacandoRanged;
+    private bool estaAtacando;
 
     private Rigidbody2D rb;
     private Animator animator;
@@ -82,10 +85,23 @@ public class Enemy2 : MonoBehaviour
         Vector3 spawnPos = transform.position + new Vector3(rangedSpawnOffset.x * direccionArm, rangedSpawnOffset.y, 0f);
         GameObject arm = Instantiate(armPrefab, spawnPos, Quaternion.identity);
 
+        ArmSkeleton armSkeleton = arm.GetComponent<ArmSkeleton>();
+        if (armSkeleton == null)
+        {
+            armSkeleton = arm.GetComponentInChildren<ArmSkeleton>();
+        }
+
+        if (armSkeleton != null)
+        {
+            armSkeleton.Initialize(direccionArm);
+        }
+
         Vector3 scale = arm.transform.localScale;
         scale.x = Mathf.Abs(scale.x) * direccionArm;
         arm.transform.localScale = scale;
 
+        estaAtacandoRanged = false;
+        estaAtacando = false;
         EndAttackState();
     }
 
@@ -103,6 +119,7 @@ public class Enemy2 : MonoBehaviour
     private void Start()
     {
         rb = GetComponent<Rigidbody2D>();
+        
         animator = GetComponent<Animator>();
         spriteRenderers = GetComponentsInChildren<SpriteRenderer>(true);
         baseScaleX = Mathf.Abs(transform.localScale.x);
@@ -153,13 +170,28 @@ public class Enemy2 : MonoBehaviour
             SetFacingToTarget(deltaX);
         }
 
-        if (!canMove && Time.time >= attackUnlockTime)
+        if (estaAtacando && rb != null)
+        {
+            rb.linearVelocity = Vector2.zero;
+        }
+
+        if (!canMove && Time.time >= attackUnlockTime && !estaAtacando)
         {
             EndAttackState();
         }
 
-        if (objetivo == null || !canMove)
+        if (objetivo == null)
         {
+            return;
+        }
+
+        if (!canMove)
+        {
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+            }
+
             return;
         }
 
@@ -168,16 +200,17 @@ public class Enemy2 : MonoBehaviour
         distanciaDelObjetivoEjeY = objetivo.transform.position.y - transform.position.y;
         distanciaAbsolutaEjeY = Mathf.Abs(distanciaDelObjetivoEjeY);
 
-        if (puedeAtacar
-            && distanciaAbsoluta <= meleeDistance
-            && distanciaAbsolutaEjeY <= attackDistanceY)
+        bool dentroDeMelee = distanciaAbsoluta <= meleeDistance && distanciaAbsolutaEjeY <= attackDistanceY;
+        bool dentroDeRanged = distanciaAbsoluta <= rangedDistance && distanciaAbsoluta > meleeDistance && distanciaAbsolutaEjeY <= attackDistanceY;
+
+        if (canMove && puedeAtacar && dentroDeMelee)
         {
-            rb.linearVelocity *= 0.95f;
             canMove = false;
+            estaAtacando = true;
             attackUnlockTime = Time.time + attackLockDuration;
             danioAplicadoEnAtaque = false;
 
-            if (rb.linearVelocity.magnitude < 0.1f)
+            if (rb != null)
             {
                 rb.linearVelocity = Vector2.zero;
             }
@@ -186,6 +219,9 @@ public class Enemy2 : MonoBehaviour
             {
                 animator.SetBool("perseguir", true);
                 animator.SetBool("melee", true);
+                animator.SetBool("ranged", false);
+                animator.SetBool("debeAtacar", false);
+                animator.SetBool(attackAnimatorBool, false);
             }
 
             AplicarDanioAtaque();
@@ -193,16 +229,14 @@ public class Enemy2 : MonoBehaviour
             return;
         }
 
-        if (puedeAtacarRanged
-            && distanciaAbsoluta <= rangedDistance
-            && distanciaAbsoluta > meleeDistance
-            && distanciaAbsolutaEjeY <= attackDistanceY)
+        if (canMove && puedeAtacarRanged && dentroDeRanged)
         {
-            rb.linearVelocity *= 0.95f;
             canMove = false;
+            estaAtacandoRanged = true;
+            estaAtacando = true;
             attackUnlockTime = Time.time + attackLockDuration;
 
-            if (rb.linearVelocity.magnitude < 0.1f)
+            if (rb != null)
             {
                 rb.linearVelocity = Vector2.zero;
             }
@@ -210,27 +244,40 @@ public class Enemy2 : MonoBehaviour
             if (animator != null)
             {
                 animator.SetBool("perseguir", true);
+                animator.SetBool("melee", false);
                 animator.SetBool("ranged", true);
+                animator.SetBool("debeAtacar", true);
+                animator.SetBool(attackAnimatorBool, true);
             }
 
             puedeAtacarRanged = false;
             return;
         }
 
-        if (debePerseguir)
+        if (distanciaAbsoluta <= rangedDistance)
         {
-            if (distanciaAbsoluta > stopDistance)
+            debePerseguir = true;
+            SetRunAnimation(true);
+
+            if (rb != null)
             {
-                transform.position = Vector2.MoveTowards(transform.position, objetivo.transform.position, speed * Time.deltaTime);
+                rb.linearVelocity = Vector2.zero;
             }
+
+            cronometro = 0;
+            rutina = 0;
+            return;
         }
 
         if (distanciaAbsoluta < distancia)
         {
-            SetFacingToTarget(distanciaDelObjetivo);
-
             debePerseguir = true;
             SetRunAnimation(true);
+
+            if (distanciaAbsoluta > stopDistance)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, objetivo.transform.position, speed * Time.deltaTime);
+            }
 
             cronometro = 0;
             rutina = 0;
@@ -271,6 +318,14 @@ public class Enemy2 : MonoBehaviour
 
                     SetRunAnimation(true);
                     break;
+            }
+        }
+
+        if (debePerseguir && canMove)
+        {
+            if (distanciaAbsoluta > stopDistance)
+            {
+                transform.position = Vector2.MoveTowards(transform.position, objetivo.transform.position, speed * Time.deltaTime);
             }
         }
     }
@@ -372,6 +427,8 @@ public class Enemy2 : MonoBehaviour
         canMove = true;
         puedeAtacar = true;
         puedeAtacarRanged = true;
+        estaAtacandoRanged = false;
+        estaAtacando = false;
         danioAplicadoEnAtaque = false;
         attackUnlockTime = 0f;
 
@@ -379,6 +436,8 @@ public class Enemy2 : MonoBehaviour
         {
             animator.SetBool("melee", false);
             animator.SetBool("ranged", false);
+            animator.SetBool("debeAtacar", false);
+            animator.SetBool(attackAnimatorBool, false);
         }
     }
 }
