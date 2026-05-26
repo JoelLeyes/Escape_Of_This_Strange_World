@@ -17,6 +17,9 @@ TextureImporter:
   - first:
       213: -6441920510090738233
     second: abriendose_4
+  - first:
+      213: -2090766515199810363
+    second: abriendose_5
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -49,7 +52,7 @@ TextureImporter:
   maxTextureSize: 2048
   textureSettings:
     serializedVersion: 2
-    filterMode: 1
+    filterMode: 0
     aniso: 1
     mipBias: 0
     wrapU: 1
@@ -87,7 +90,7 @@ TextureImporter:
     maxTextureSize: 2048
     resizeAlgorithm: 0
     textureFormat: -1
-    textureCompression: 1
+    textureCompression: 0
     compressionQuality: 50
     crunchedCompression: 0
     allowsAlphaSplitting: 0
@@ -128,10 +131,10 @@ TextureImporter:
       name: abriendose_0
       rect:
         serializedVersion: 2
-        x: 5
+        x: 11
         y: 0
-        width: 86
-        height: 96
+        width: 173
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -150,10 +153,10 @@ TextureImporter:
       name: abriendose_1
       rect:
         serializedVersion: 2
-        x: 101
+        x: 203
         y: 0
-        width: 86
-        height: 96
+        width: 173
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -172,10 +175,10 @@ TextureImporter:
       name: abriendose_2
       rect:
         serializedVersion: 2
-        x: 197
+        x: 395
         y: 0
-        width: 86
-        height: 96
+        width: 173
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -194,10 +197,10 @@ TextureImporter:
       name: abriendose_3
       rect:
         serializedVersion: 2
-        x: 293
+        x: 587
         y: 0
-        width: 86
-        height: 96
+        width: 173
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -216,10 +219,10 @@ TextureImporter:
       name: abriendose_4
       rect:
         serializedVersion: 2
-        x: 389
+        x: 779
         y: 0
-        width: 86
-        height: 96
+        width: 173
+        height: 192
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -230,6 +233,28 @@ TextureImporter:
       bones: []
       spriteID: 7c50db44d63b996a0800000000000000
       internalID: -6441920510090738233
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: abriendose_5
+      rect:
+        serializedVersion: 2
+        x: 971
+        y: 0
+        width: 173
+        height: 192
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 5c4eb398eea1cf2e0800000000000000
+      internalID: -2090766515199810363
       vertices: []
       indices: 
       edges: []
@@ -253,6 +278,7 @@ TextureImporter:
       abriendose_2: -1333848540009694586
       abriendose_3: 6589866745973519002
       abriendose_4: -6441920510090738233
+      abriendose_5: -2090766515199810363
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
