@@ -4184,6 +4184,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Chest (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 6524176073757923440, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
+      propertyPath: containedObject
+      value: 
+      objectReference: {fileID: 4317482803829006333, guid: 7923fb1d3587b734b857927e38fa0eeb, type: 3}
     - target: {fileID: 7044497778912146071, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
       propertyPath: m_LocalPosition.x
       value: 1.03
@@ -5925,6 +5929,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Chest
       objectReference: {fileID: 0}
+    - target: {fileID: 6524176073757923440, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
+      propertyPath: containedObject
+      value: 
+      objectReference: {fileID: 6786629498940612176, guid: d9b1f92998b62cd449e24ea6fe48f9e8, type: 3}
     - target: {fileID: 7044497778912146071, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
       propertyPath: m_LocalPosition.x
       value: -1.1215899

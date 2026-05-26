@@ -8,6 +8,7 @@ public class Chest : MonoBehaviour
     [SerializeField] private float interactionRadius = 1.5f;
     [SerializeField] private string interactionMessage = "Presione E para abrir";
     [SerializeField] private float promptYOffset = 0.6f;
+    [SerializeField] public GameObject containedObject;
 
     private Animator animator;
     private bool isOpen;
@@ -92,6 +93,11 @@ public class Chest : MonoBehaviour
         if (animator != null)
         {
             animator.SetTrigger(openTriggerName);
+        }
+
+        if (containedObject != null)
+        {
+            Instantiate(containedObject, transform.position + Vector3.up * 0.5f, Quaternion.identity);
         }
     }
 }

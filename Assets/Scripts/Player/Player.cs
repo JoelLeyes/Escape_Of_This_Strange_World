@@ -9,7 +9,8 @@ public class Player : MonoBehaviour
     {
         None,
         Magic,
-        Sword
+        Sword,
+        Bow
     }
 
     [Header("Vida")]
@@ -25,6 +26,9 @@ public class Player : MonoBehaviour
     [SerializeField] private Vector2 hudCorazonSize = new Vector2(32f, 32f);
     [SerializeField] private float hudEspacioCorazones = 6f;
 
+    [Header("Items UI")]
+    [SerializeField] private Vector2 hudItemsOffset = new Vector2(20f, -80f);
+
     public float JumpForce;
     public float Speed;
     public float JumpCooldown = 0.1f;
@@ -34,6 +38,7 @@ public class Player : MonoBehaviour
     [SerializeField] private string dashAnimatorBool = "Dashing";
     [SerializeField] private string swordAnimatorTrigger = "Sword";
     [SerializeField] private Fire firePrefab;
+    [SerializeField] private Arrow arrowPrefab;
     [SerializeField] private PlayerAttackHitbox swordHitbox;
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
@@ -57,6 +62,11 @@ public class Player : MonoBehaviour
     private bool nivelPerdido;
     private const float danoPorCorazon = 20f;
 
+    // Items
+    private bool tieneArco;
+    private int cantidadFlechas;
+    private UI.ItemDisplay itemDisplay;
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         HandleHazardCollision(collision.gameObject);
@@ -69,9 +79,73 @@ public class Player : MonoBehaviour
 
     private void HandleHazardCollision(GameObject other)
     {
+        if (other == null)
+        {
+            return;
+        }
+
         if (other.CompareTag("Trap"))
         {
             RecibirDanio(corazonesMaximos * danoPorCorazon);
+            return;
+        }
+
+        if (other.CompareTag("Item"))
+        {
+            PickupItem(other);
+            return;
+        }
+    }
+
+    private void PickupItem(GameObject itemObj)
+    {
+        if (itemObj == null)
+        {
+            return;
+        }
+
+        // Try detect item type by component
+        bool isArrow = itemObj.GetComponentInChildren<Arrow_Item>() != null || itemObj.name.ToLower().Contains("arrow");
+        bool isBox = itemObj.GetComponentInChildren<Box>() != null || itemObj.name.ToLower().Contains("box");
+
+        Sprite sprite = null;
+        SpriteRenderer sr = itemObj.GetComponentInChildren<SpriteRenderer>();
+        if (sr != null)
+        {
+            sprite = sr.sprite;
+        }
+
+        EnsureItemDisplay();
+
+        if (isBox)
+        {
+            // Grant bow
+            tieneArco = true;
+            if (itemDisplay != null)
+            {
+                itemDisplay.SetBowSprite(sprite);
+            }
+            Destroy(itemObj);
+            return;
+        }
+
+        if (isArrow)
+        {
+            // Each arrow pickup grants 10 arrows
+            cantidadFlechas += 10;
+            if (itemDisplay != null)
+            {
+                if (itemDisplay != null && itemDisplay.transform.childCount > 0 && itemDisplay != null)
+                {
+                    // ensure arrow sprite is set if not
+                    itemDisplay.SetArrowSprite(sprite);
+                }
+
+                itemDisplay.SetArrowCount(cantidadFlechas);
+            }
+
+            Destroy(itemObj);
+            return;
         }
     }
 
@@ -174,6 +248,7 @@ public class Player : MonoBehaviour
 
         SwordAttack();
         MagicAttack();
+        BowAttack();
     }
     private float GetHorizontalInput()
     {
@@ -242,6 +317,66 @@ public class Player : MonoBehaviour
         int direction = transform.right.x >= 0f ? 1 : -1;
         Fire fire = Instantiate(firePrefab, transform.position, Quaternion.identity);
         fire.Initialize(direction);
+    }
+
+    private void BowAttack()
+    {
+        if (Keyboard.current == null
+            || !Keyboard.current.lKey.wasPressedThisFrame
+            || !Grounded
+            || Animator == null
+            || attackActive
+            || !canMove)
+        {
+            return;
+        }
+
+        // Only allow bow attack if player actually has the bow and at least one arrow
+        if (!tieneArco || cantidadFlechas <= 0)
+        {
+            return;
+        }
+
+        canMove = false;
+        attackActive = true;
+        currentAttackType = AttackType.Bow;
+        Animator.SetTrigger("BoxAttack");
+    }
+
+    // Called by the animation event `BoxAttack_AnimationEnd`
+    public void BoxAttack_AnimationEnd()
+    {
+        // Ensure player actually has bow and arrows before spawning
+        if (!tieneArco || cantidadFlechas <= 0)
+        {
+            // End attack state without firing
+            attackActive = false;
+            canMove = true;
+            currentAttackType = AttackType.None;
+            return;
+        }
+
+        if (arrowPrefab == null)
+        {
+            Debug.LogError("Arrow prefab is not assigned in Player Inspector.", this);
+        }
+        else
+        {
+            int direction = transform.right.x >= 0f ? 1 : -1;
+            Arrow arrow = Instantiate(arrowPrefab, transform.position, Quaternion.identity);
+            arrow.Initialize(direction);
+
+            cantidadFlechas = Mathf.Max(0, cantidadFlechas - 1);
+            if (itemDisplay != null)
+            {
+                itemDisplay.SetArrowCount(cantidadFlechas);
+            }
+        }
+
+        // End attack state
+        attackActive = false;
+        canMove = true;
+        currentAttackType = AttackType.None;
     }
 
     public void Magic_Cast()
@@ -514,6 +649,8 @@ public class Player : MonoBehaviour
         display.SetPlayer(this);
         display.SetSprites(corazonLleno, corazonVacio);
         display.SetLayout(hudCorazonSize, hudEspacioCorazones);
+
+        EnsureItemDisplay();
     }
 
     private HeartDisplay CreateHeartDisplay()
@@ -534,6 +671,36 @@ public class Player : MonoBehaviour
         rect.anchoredPosition = hudOffset;
 
         return displayObject.GetComponent<HeartDisplay>();
+    }
+
+    private void EnsureItemDisplay()
+    {
+        if (!autoCrearHUD)
+        {
+            return;
+        }
+
+        if (itemDisplay != null)
+        {
+            return;
+        }
+
+        Canvas canvas = FindOrCreateHudCanvas();
+        if (canvas == null)
+        {
+            return;
+        }
+
+        GameObject displayObject = new GameObject("ItemDisplay", typeof(RectTransform), typeof(UI.ItemDisplay));
+        displayObject.transform.SetParent(canvas.transform, false);
+
+        RectTransform rect = displayObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition = hudItemsOffset;
+
+        itemDisplay = displayObject.GetComponent<UI.ItemDisplay>();
     }
 
     private Canvas FindOrCreateHudCanvas()

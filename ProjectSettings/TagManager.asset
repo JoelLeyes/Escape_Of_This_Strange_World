@@ -9,6 +9,7 @@ TagManager:
   - Trap
   - Object_Destroyable
   - Enemy_Attack
+  - Item
   layers:
   - Default
   - TransparentFX
