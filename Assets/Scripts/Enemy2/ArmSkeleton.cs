@@ -5,7 +5,7 @@ public class ArmSkeleton : MonoBehaviour
     [SerializeField] private float speed = 3f;
     [SerializeField] private float rotationSpeed = 1080f;
     [SerializeField] private float lifeTime = 2f;
-    [SerializeField] private float damage = 20f;
+    [SerializeField] private float damage = 40f;
     [SerializeField] private string playerTag = "Player";
 
     private Rigidbody2D rb;

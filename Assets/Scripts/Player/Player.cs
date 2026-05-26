@@ -13,9 +13,12 @@ public class Player : MonoBehaviour
     }
 
     [Header("Vida")]
-    [SerializeField] private float vidaMaxima = 100f;
+    [SerializeField] private int corazonesMaximos = 10;
     [SerializeField] private float tiempoInvulnerable = 0.5f;
     [SerializeField] private Slider barraVida;
+    [SerializeField] private Image[] corazones;
+    [SerializeField] private Sprite corazonLleno;
+    [SerializeField] private Sprite corazonVacio;
 
     public float JumpForce;
     public float Speed;
@@ -44,9 +47,10 @@ public class Player : MonoBehaviour
     private AttackType currentAttackType = AttackType.None;
 
     private bool canMove = true;
-    private float vidaActual;
+    private int corazonesActuales;
     private float nextDamageTime;
     private bool nivelPerdido;
+    private const float danoPorCorazon = 20f;
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
@@ -62,11 +66,10 @@ public class Player : MonoBehaviour
     {
         if (other.CompareTag("Trap"))
         {
-            RecibirDanio(vidaMaxima); // Inflict fatal damage
+            RecibirDanio(corazonesMaximos * danoPorCorazon);
         }
     }
 
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         Rigidbody2D = GetComponent<Rigidbody2D>(); //esta funcion mete el componente Rigidbody dentro del script
@@ -77,8 +80,8 @@ public class Player : MonoBehaviour
             swordHitbox = GetComponentInChildren<PlayerAttackHitbox>(true);
         }
 
-        vidaActual = vidaMaxima;
-        ActualizarBarraVida();
+        corazonesActuales = corazonesMaximos;
+        ActualizarCorazones();
 
         if (GameManager.Instance != null)
         {
@@ -383,16 +386,17 @@ public class Player : MonoBehaviour
             return;
         }
 
-        vidaActual -= danio;
+        int corazonesAPerdidos = Mathf.CeilToInt(danio / danoPorCorazon);
+        corazonesActuales -= corazonesAPerdidos;
         nextDamageTime = Time.time + tiempoInvulnerable;
-        ActualizarBarraVida();
+        ActualizarCorazones();
 
-        if (vidaActual > 0f && Animator != null)
+        if (corazonesActuales > 0 && Animator != null)
         {
             Animator.SetTrigger("Damage");
         }
 
-        if (vidaActual <= 0f)
+        if (corazonesActuales <= 0)
         {
             PerderNivel();
         }
@@ -441,15 +445,36 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void ActualizarBarraVida()
+    private void ActualizarCorazones()
     {
-        if (barraVida == null)
+        if (corazones == null || corazones.Length == 0)
         {
             return;
         }
 
-        barraVida.maxValue = vidaMaxima;
-        barraVida.value = Mathf.Max(vidaActual, 0f);
+        corazonesActuales = Mathf.Max(corazonesActuales, 0);
+
+        for (int i = 0; i < corazones.Length; i++)
+        {
+            if (corazones[i] == null)
+            {
+                continue;
+            }
+
+            if (i < corazonesActuales)
+            {
+                corazones[i].sprite = corazonLleno;
+            }
+            else
+            {
+                corazones[i].sprite = corazonVacio;
+            }
+        }
+    }
+
+    public int GetCorazonesActuales()
+    {
+        return corazonesActuales;
     }
 
     private void FixedUpdate()
