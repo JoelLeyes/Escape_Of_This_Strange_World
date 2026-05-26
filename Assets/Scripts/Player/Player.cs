@@ -19,6 +19,11 @@ public class Player : MonoBehaviour
     [SerializeField] private Image[] corazones;
     [SerializeField] private Sprite corazonLleno;
     [SerializeField] private Sprite corazonVacio;
+    [Header("UI Corazones")]
+    [SerializeField] private bool autoCrearHUD = true;
+    [SerializeField] private Vector2 hudOffset = new Vector2(20f, -20f);
+    [SerializeField] private Vector2 hudCorazonSize = new Vector2(32f, 32f);
+    [SerializeField] private float hudEspacioCorazones = 6f;
 
     public float JumpForce;
     public float Speed;
@@ -82,6 +87,7 @@ public class Player : MonoBehaviour
 
         corazonesActuales = corazonesMaximos;
         ActualizarCorazones();
+        EnsureHeartDisplay();
 
         if (GameManager.Instance != null)
         {
@@ -475,6 +481,83 @@ public class Player : MonoBehaviour
     public int GetCorazonesActuales()
     {
         return corazonesActuales;
+    }
+
+    public int GetCorazonesMaximos()
+    {
+        return corazonesMaximos;
+    }
+
+    private void EnsureHeartDisplay()
+    {
+        if (!autoCrearHUD)
+        {
+            return;
+        }
+
+        if (corazones != null && corazones.Length > 0)
+        {
+            return;
+        }
+
+        HeartDisplay display = FindFirstObjectByType<HeartDisplay>();
+        if (display == null)
+        {
+            display = CreateHeartDisplay();
+        }
+
+        if (display == null)
+        {
+            return;
+        }
+
+        display.SetPlayer(this);
+        display.SetSprites(corazonLleno, corazonVacio);
+        display.SetLayout(hudCorazonSize, hudEspacioCorazones);
+    }
+
+    private HeartDisplay CreateHeartDisplay()
+    {
+        Canvas canvas = FindOrCreateHudCanvas();
+        if (canvas == null)
+        {
+            return null;
+        }
+
+        GameObject displayObject = new GameObject("HeartDisplay", typeof(RectTransform), typeof(HeartDisplay));
+        displayObject.transform.SetParent(canvas.transform, false);
+
+        RectTransform rect = displayObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition = hudOffset;
+
+        return displayObject.GetComponent<HeartDisplay>();
+    }
+
+    private Canvas FindOrCreateHudCanvas()
+    {
+        Canvas[] canvases = FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+        for (int i = 0; i < canvases.Length; i++)
+        {
+            if (canvases[i] != null && canvases[i].name == "HUDCanvas")
+            {
+                return canvases[i];
+            }
+        }
+
+        GameObject hud = new GameObject("HUDCanvas", typeof(Canvas), typeof(CanvasScaler), typeof(GraphicRaycaster));
+        Canvas canvas = hud.GetComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 10;
+
+        CanvasScaler scaler = hud.GetComponent<CanvasScaler>();
+        scaler.uiScaleMode = CanvasScaler.ScaleMode.ScaleWithScreenSize;
+        scaler.referenceResolution = new Vector2(1920f, 1080f);
+        scaler.matchWidthOrHeight = 0.5f;
+
+        return canvas;
     }
 
     private void FixedUpdate()

@@ -24,7 +24,7 @@ public class Enemy2 : MonoBehaviour
     [SerializeField] private float meleeDistance = 1.2f;
     [SerializeField] private float attackDistanceY = 1.5f;
     [SerializeField] private float stopDistance = 0.20f;
-    [SerializeField] private float danioGolpe = 25f;
+    [SerializeField] private float danioGolpe = 40f;
     [SerializeField] private float radioGolpe = 1.3f;
     [SerializeField] private Vector2 offsetGolpe = new Vector2(0.7f, 0.2f);
 
