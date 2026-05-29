@@ -6584,6 +6584,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 3745773239509234527, guid: 49727817927c4774fb7fad97367765ce, type: 3}
     - target: {fileID: 7507796218499368709, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
+      propertyPath: arrowPrefab
+      value: 
+      objectReference: {fileID: -2674059576465499189, guid: e62973a4e81535c4c97d03c9d41483bc, type: 3}
+    - target: {fileID: 7507796218499368709, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: DashCooldown
       value: 0.55
       objectReference: {fileID: 0}
