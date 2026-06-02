@@ -67,6 +67,21 @@ public class Player : MonoBehaviour
     private int cantidadFlechas;
     private UI.ItemDisplay itemDisplay;
 
+    private void ForceEndActionLocks()
+    {
+        // Si una animación de ataque se interrumpe (por ejemplo por Damage), los eventos de animación
+        // como `Attack_End` / `BoxAttack_AnimationEnd` pueden no ejecutarse y el player queda
+        // trabado con `canMove=false`. Este método garantiza que siempre se recupera el control.
+        if (swordHitbox != null)
+        {
+            swordHitbox.EndAttack();
+        }
+
+        attackActive = false;
+        canMove = true;
+        currentAttackType = AttackType.None;
+    }
+
     private void OnCollisionEnter2D(Collision2D collision)
     {
         HandleHazardCollision(collision.gameObject);
@@ -311,6 +326,7 @@ public class Player : MonoBehaviour
         if (firePrefab == null)
         {
             Debug.LogError("Fire prefab is not assigned in Player Inspector.", this);
+            ForceEndActionLocks();
             return;
         }
 
@@ -350,9 +366,7 @@ public class Player : MonoBehaviour
         if (!tieneArco || cantidadFlechas <= 0)
         {
             // End attack state without firing
-            attackActive = false;
-            canMove = true;
-            currentAttackType = AttackType.None;
+            ForceEndActionLocks();
             return;
         }
 
@@ -374,9 +388,7 @@ public class Player : MonoBehaviour
         }
 
         // End attack state
-        attackActive = false;
-        canMove = true;
-        currentAttackType = AttackType.None;
+        ForceEndActionLocks();
     }
 
     public void Magic_Cast()
@@ -420,14 +432,7 @@ public class Player : MonoBehaviour
 
     public void Attack_End()
     {
-        if (currentAttackType == AttackType.Sword && swordHitbox != null)
-        {
-            swordHitbox.EndAttack();
-        }
-
-        attackActive = false;
-        canMove = true;
-        currentAttackType = AttackType.None;
+        ForceEndActionLocks();
     }
 
     private bool Cooldown(float cooldown)
@@ -525,6 +530,13 @@ public class Player : MonoBehaviour
         if (nivelPerdido || isDashing || Time.time < nextDamageTime)
         {
             return;
+        }
+
+        // Si el daño interrumpe un ataque, el evento de fin de ataque puede no ejecutarse.
+        // Cancelamos locks aquí para evitar que el player quede inmóvil para siempre.
+        if (attackActive || !canMove)
+        {
+            ForceEndActionLocks();
         }
 
         int corazonesAPerdidos = Mathf.CeilToInt(danio / danoPorCorazon);
