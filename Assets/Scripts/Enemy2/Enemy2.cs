@@ -175,7 +175,10 @@ public class Enemy2 : MonoBehaviour
             rb.linearVelocity = Vector2.zero;
         }
 
-        if (!canMove && Time.time >= attackUnlockTime && !estaAtacando)
+        // Failsafe: si la animación se interrumpe (por ejemplo cuando el player lo salta),
+        // los eventos `golpeFin` / `Arm_Attack_End` pueden no ejecutarse.
+        // En ese caso el enemigo quedaba con `canMove=false` para siempre.
+        if (!canMove && attackUnlockTime > 0f && Time.time >= attackUnlockTime)
         {
             EndAttackState();
         }
