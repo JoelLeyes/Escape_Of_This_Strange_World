@@ -130,6 +130,15 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void AjustarColliderMuerte()
+    {
+        // Cambia el tamaño del collider
+        GetComponent<BoxCollider2D>().size = new Vector2(0.5f, 0.2f);
+
+        // Cambia la posición del collider
+        GetComponent<BoxCollider2D>().offset = new Vector2(0f,0f);
+    }
+
     private void PickupItem(GameObject itemObj)
     {
         if (itemObj == null)
