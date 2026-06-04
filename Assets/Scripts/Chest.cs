@@ -1,5 +1,14 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using System.Collections.Generic;
+
+[System.Serializable]
+public class ChestItem
+{
+    public GameObject prefab;       // El objeto que puede salir del cofre
+    public int minAmount = 1;       // Cantidad mínima
+    public int maxAmount = 1;       // Cantidad máxima
+}
 
 [RequireComponent(typeof(Collider2D))]
 public class Chest : MonoBehaviour
@@ -8,7 +17,9 @@ public class Chest : MonoBehaviour
     [SerializeField] private float interactionRadius = 1.5f;
     [SerializeField] private string interactionMessage = "Presione E para abrir";
     [SerializeField] private float promptYOffset = 0.6f;
-    [SerializeField] public GameObject containedObject;
+
+    // Lista de objetos posibles con sus cantidades
+    [SerializeField] private List<ChestItem> possibleItems;
 
     private Animator animator;
     private bool isOpen;
@@ -83,11 +94,7 @@ public class Chest : MonoBehaviour
 
     private void OpenChest()
     {
-        if (isOpen)
-        {
-            return;
-        }
-
+        if (isOpen) return;
         isOpen = true;
 
         if (animator != null)
@@ -95,9 +102,22 @@ public class Chest : MonoBehaviour
             animator.SetTrigger(openTriggerName);
         }
 
-        if (containedObject != null)
+        // Generar objetos según su rango de cantidad
+        if (possibleItems != null && possibleItems.Count > 0)
         {
-            Instantiate(containedObject, transform.position + Vector3.up * 0.5f, Quaternion.identity);
+            foreach (ChestItem item in possibleItems)
+            {
+                if (item.prefab != null)
+                {
+                    int amount = Random.Range(item.minAmount, item.maxAmount + 1);
+
+                    for (int i = 0; i < amount; i++)
+                    {
+                        Vector3 spawnPos = transform.position + Vector3.up * (0.5f + i * 0.2f);
+                        Instantiate(item.prefab, spawnPos, Quaternion.identity);
+                    }
+                }
+            }
         }
     }
 }
