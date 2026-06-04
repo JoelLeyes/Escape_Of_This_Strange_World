@@ -75,6 +75,14 @@ public class Fire : MonoBehaviour
             return;
         }
 
+        Boss1 boss = other.GetComponentInParent<Boss1>();
+        if (boss != null)
+        {
+            HandleHit();
+            boss.RecibirDanio(damage);
+            return;
+        }
+
         Transform root = other.transform.root;
         bool esEnemyPorTag = other.CompareTag(enemyTag) || (root != null && root.CompareTag(enemyTag));
 
@@ -91,14 +99,7 @@ public class Fire : MonoBehaviour
             return;
         }
 
-        hasCollided = true; // Mark as collided to stop movement
-
-        if (rb != null)
-        {
-            rb.linearVelocity = Vector2.zero; // Stop movement
-            rb.isKinematic = true; // Prevent further movement
-            rb.simulated = false; // Disable Rigidbody2D simulation
-        }
+        HandleHit();
 
         // Prioriza Enemy2 si coexistieran ambos scripts por error en la jerarquía.
         if (enemy2 != null)
@@ -108,6 +109,23 @@ public class Fire : MonoBehaviour
         else
         {
             enemy1.RecibirDanio(damage);
+        }
+
+        if (animator != null)
+        {
+            animator.SetTrigger("Target");
+        }
+    }
+
+    private void HandleHit()
+    {
+        hasCollided = true; // Mark as collided to stop movement
+
+        if (rb != null)
+        {
+            rb.linearVelocity = Vector2.zero; // Stop movement
+            rb.isKinematic = true; // Prevent further movement
+            rb.simulated = false; // Disable Rigidbody2D simulation
         }
 
         if (animator != null)

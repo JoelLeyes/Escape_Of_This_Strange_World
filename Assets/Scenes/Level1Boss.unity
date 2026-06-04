@@ -144,7 +144,7 @@ Transform:
   m_GameObject: {fileID: 49955249}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 6.93, y: -2.82, z: 0}
+  m_LocalPosition: {x: 6.93, y: -2.5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -6891,7 +6891,7 @@ Transform:
   m_GameObject: {fileID: 673275839}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 3.912, y: -0.94, z: 0}
+  m_LocalPosition: {x: 3.912, y: -0.56, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7687,7 +7687,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 2
+  orthographic size: 3
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
@@ -7712,7 +7712,7 @@ Transform:
   m_GameObject: {fileID: 985983270}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -2.45, y: -3.91, z: -10}
+  m_LocalPosition: {x: 4.01, y: -2.82, z: -10}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -7828,7 +7828,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7507796218499368709, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: JumpForce
-      value: 300
+      value: 350
       objectReference: {fileID: 0}
     - target: {fileID: 7774087917430264697, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: m_Name
@@ -8003,6 +8003,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dde827b3ffb40c84db7ff39904a93886, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  vida: 200
+  damageTrigger: hurt
+  healthBarOffset: {x: 0, y: 1.2}
+  healthBarSize: {x: 1.6, y: 0.18}
+  healthBarBorderPadding: 0.04
+  healthBarBorderColor: {r: 0, g: 0, b: 0, a: 1}
+  healthBarBackgroundColor: {r: 0.12, g: 0.05, b: 0.05, a: 0.9}
+  healthBarFillColor: {r: 0.55, g: 0.05, b: 0.05, a: 1}
+  bossName: NecroMancer
+  bossNameColor: {r: 0.85, g: 0.1, b: 0.1, a: 1}
+  bossNameOffset: {x: -0.1, y: 0}
+  bossNameFontSize: 16
+  bossNameCharacterSize: 0.08
+  healthBarSortingOrder: 10
+  healthBarSortingLayer: Default
   points:
   - {fileID: 673275840}
   - {fileID: 49955250}
@@ -8011,6 +8026,19 @@ MonoBehaviour:
   speed: 2
   arrivalDistance: 0.1
   pickDifferentPoint: 1
+  waitAtPointSeconds: 10
+  magicChance: 1
+  magicMinDelay: 3
+  magicMaxDelay: 3
+  fireBossPrefab: {fileID: 6935581352252494698, guid: 6a26ed079767ffb4a8ba453695796e09, type: 3}
+  fireBossSpawnOffset: {x: 0, y: 0}
+  fireBossSpeed: 4
+  fireBossLifeTime: 3
+  fireBossAngle0: 0
+  fireBossAngle1: 225
+  fireBossAngle2: 270
+  fireBossAngle3: 315
+  fireBossAngle4: 180
 --- !u!1 &1443268598
 GameObject:
   m_ObjectHideFlags: 0

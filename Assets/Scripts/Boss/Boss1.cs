@@ -2,6 +2,23 @@ using UnityEngine;
 
 public class Boss1 : MonoBehaviour
 {
+    [Header("Vida")]
+    public float vida = 200f;
+    [SerializeField] private string damageTrigger = "hurt";
+    [SerializeField] private Vector2 healthBarOffset = new Vector2(0f, 1.2f);
+    [SerializeField] private Vector2 healthBarSize = new Vector2(1.6f, 0.18f);
+    [SerializeField] private float healthBarBorderPadding = 0.04f;
+    [SerializeField] private Color healthBarBorderColor = new Color(0f, 0f, 0f, 1f);
+    [SerializeField] private Color healthBarBackgroundColor = new Color(0.12f, 0.05f, 0.05f, 0.9f);
+    [SerializeField] private Color healthBarFillColor = new Color(0.55f, 0.05f, 0.05f, 1f);
+    [SerializeField] private string bossName = "NecroMancer";
+    [SerializeField] private Color bossNameColor = new Color(0.85f, 0.1f, 0.1f, 1f);
+    [SerializeField] private Vector2 bossNameOffset = new Vector2(0f, 0.60f);
+    [SerializeField] private int bossNameFontSize = 64;
+    [SerializeField] private float bossNameCharacterSize = 0.08f;
+    [SerializeField] private int healthBarSortingOrder = 10;
+    [SerializeField] private string healthBarSortingLayer = "Default";
+
     [Header("Movimiento")]
     [SerializeField] private Transform[] points;
     [SerializeField] private string pointsTag = "BossPoint";
@@ -33,16 +50,29 @@ public class Boss1 : MonoBehaviour
     private float waitEndTime;
     private bool magicScheduled;
     private float magicTriggerTime;
+    private float vidaMax;
+    private Transform healthBarRoot;
+    private Transform healthBarFill;
+    private static Sprite sharedBarSprite;
 
     private void Start()
     {
         animator = GetComponent<Animator>();
+        vidaMax = Mathf.Max(vida, 1f);
+        CreateHealthBar();
+        UpdateHealthBar();
         EnsurePoints();
         PickNextTarget();
     }
 
     private void Update()
     {
+        if (vida <= 0f)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
         if (isWaiting)
         {
             if (magicScheduled && Time.time >= magicTriggerTime)
@@ -201,6 +231,129 @@ public class Boss1 : MonoBehaviour
         {
             animator.SetTrigger("idle");
         }
+    }
+
+    public void RecibirDanio(float danio)
+    {
+        vida = Mathf.Max(vida - danio, 0f);
+        UpdateHealthBar();
+
+        if (vida <= 0f)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        if (animator != null && !string.IsNullOrEmpty(damageTrigger))
+        {
+            animator.SetTrigger(damageTrigger);
+        }
+    }
+
+    private void CreateHealthBar()
+    {
+        if (healthBarRoot != null)
+        {
+            return;
+        }
+
+        GameObject root = new GameObject("BossHealthBar");
+        root.transform.SetParent(transform);
+        root.transform.localPosition = healthBarOffset;
+        root.transform.localRotation = Quaternion.identity;
+        root.transform.localScale = Vector3.one;
+        healthBarRoot = root.transform;
+
+        GameObject border = new GameObject("Border");
+        border.transform.SetParent(healthBarRoot, false);
+        SpriteRenderer borderRenderer = border.AddComponent<SpriteRenderer>();
+        borderRenderer.sprite = GetBarSprite();
+        borderRenderer.color = healthBarBorderColor;
+        borderRenderer.sortingOrder = healthBarSortingOrder;
+        if (!string.IsNullOrEmpty(healthBarSortingLayer))
+        {
+            borderRenderer.sortingLayerName = healthBarSortingLayer;
+        }
+        border.transform.localScale = new Vector3(healthBarSize.x + healthBarBorderPadding * 2f,
+            healthBarSize.y + healthBarBorderPadding * 2f, 1f);
+
+        GameObject bg = new GameObject("Background");
+        bg.transform.SetParent(healthBarRoot, false);
+        SpriteRenderer bgRenderer = bg.AddComponent<SpriteRenderer>();
+        bgRenderer.sprite = GetBarSprite();
+        bgRenderer.color = healthBarBackgroundColor;
+        bgRenderer.sortingOrder = healthBarSortingOrder + 1;
+        if (!string.IsNullOrEmpty(healthBarSortingLayer))
+        {
+            bgRenderer.sortingLayerName = healthBarSortingLayer;
+        }
+        bg.transform.localScale = new Vector3(healthBarSize.x, healthBarSize.y, 1f);
+
+        GameObject fill = new GameObject("Fill");
+        fill.transform.SetParent(healthBarRoot, false);
+        SpriteRenderer fillRenderer = fill.AddComponent<SpriteRenderer>();
+        fillRenderer.sprite = GetBarSprite();
+        fillRenderer.color = healthBarFillColor;
+        fillRenderer.sortingOrder = healthBarSortingOrder + 2;
+        if (!string.IsNullOrEmpty(healthBarSortingLayer))
+        {
+            fillRenderer.sortingLayerName = healthBarSortingLayer;
+        }
+
+        healthBarFill = fill.transform;
+
+        GameObject nameObject = new GameObject("NameLabel");
+        nameObject.transform.SetParent(healthBarRoot, false);
+        TextMesh nameText = nameObject.AddComponent<TextMesh>();
+        nameText.text = bossName;
+        nameText.color = bossNameColor;
+        nameText.anchor = TextAnchor.MiddleCenter;
+        nameText.alignment = TextAlignment.Center;
+        nameText.fontSize = bossNameFontSize;
+        nameText.characterSize = bossNameCharacterSize;
+
+        MeshRenderer nameRenderer = nameObject.GetComponent<MeshRenderer>();
+        if (nameRenderer != null)
+        {
+            nameRenderer.sortingOrder = healthBarSortingOrder + 3;
+            if (!string.IsNullOrEmpty(healthBarSortingLayer))
+            {
+                nameRenderer.sortingLayerName = healthBarSortingLayer;
+            }
+        }
+
+        nameObject.transform.localPosition = new Vector3(bossNameOffset.x, bossNameOffset.y, -0.02f);
+    }
+
+    private void UpdateHealthBar()
+    {
+        if (healthBarFill == null)
+        {
+            return;
+        }
+
+        float percent = vidaMax <= 0f ? 0f : Mathf.Clamp01(vida / vidaMax);
+        float width = healthBarSize.x * percent;
+        healthBarFill.localScale = new Vector3(width, healthBarSize.y, 1f);
+
+        float xOffset = -(healthBarSize.x - width) * 0.5f;
+        healthBarFill.localPosition = new Vector3(xOffset, 0f, -0.01f);
+    }
+
+    private static Sprite GetBarSprite()
+    {
+        if (sharedBarSprite != null)
+        {
+            return sharedBarSprite;
+        }
+
+        Texture2D tex = new Texture2D(1, 1, TextureFormat.RGBA32, false);
+        tex.SetPixel(0, 0, Color.white);
+        tex.Apply();
+
+        sharedBarSprite = Sprite.Create(tex, new Rect(0f, 0f, 1f, 1f), new Vector2(0.5f, 0.5f), 1f);
+        sharedBarSprite.name = "BossHealthBarSprite";
+        return sharedBarSprite;
     }
 
     public void Boss_Magic5_AnimationEnd()
