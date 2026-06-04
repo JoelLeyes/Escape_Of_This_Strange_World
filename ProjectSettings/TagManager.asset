@@ -10,6 +10,7 @@ TagManager:
   - Object_Destroyable
   - Enemy_Attack
   - Item
+  - BossPoint
   layers:
   - Default
   - TransparentFX
