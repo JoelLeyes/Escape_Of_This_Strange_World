@@ -29,6 +29,11 @@ public class Player : MonoBehaviour
     [Header("Items UI")]
     [SerializeField] private Vector2 hudItemsOffset = new Vector2(20f, -80f);
 
+    [Header("Suelo (Raycasts)")]
+    [SerializeField] private float groundRayLength = 0.34f;
+    [SerializeField] private float groundRayOffsetX = 0.15f;
+    [SerializeField] private float groundRayStartOffsetFromColliderBottom = 0.02f;
+
     public float JumpForce;
     public float Speed;
     public float JumpCooldown = 0.1f;
@@ -80,6 +85,19 @@ public class Player : MonoBehaviour
         attackActive = false;
         canMove = true;
         currentAttackType = AttackType.None;
+    }
+
+    private Vector3 GetGroundRayOrigin()
+    {
+        Collider2D col = PlayerCollider != null ? PlayerCollider : GetComponent<Collider2D>();
+        if (col == null)
+        {
+            return transform.position;
+        }
+
+        Bounds b = col.bounds;
+        float y = b.min.y + groundRayStartOffsetFromColliderBottom;
+        return new Vector3(transform.position.x, y, transform.position.z);
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -204,9 +222,12 @@ public class Player : MonoBehaviour
         }
 
         //RAYOS
-        RaycastHit2D centerHit = Physics2D.Raycast(transform.position, Vector3.down, 0.24f); //rayo central
-        RaycastHit2D rightHit = Physics2D.Raycast(transform.position + Vector3.right * 0.15f, Vector3.down, 0.24f); //rayo derecha
-        RaycastHit2D leftHit = Physics2D.Raycast(transform.position + Vector3.left * 0.15f, Vector3.down, 0.24f); //rayo izquierda
+        // Un poco más largos para detectar el suelo más consistente
+        // y con origen en los pies (abajo del collider) para evitar que salgan desde la panza.
+        Vector3 rayOrigin = GetGroundRayOrigin();
+        RaycastHit2D centerHit = Physics2D.Raycast(rayOrigin, Vector3.down, groundRayLength); //rayo central
+        RaycastHit2D rightHit = Physics2D.Raycast(rayOrigin + Vector3.right * groundRayOffsetX, Vector3.down, groundRayLength); //rayo derecha
+        RaycastHit2D leftHit = Physics2D.Raycast(rayOrigin + Vector3.left * groundRayOffsetX, Vector3.down, groundRayLength); //rayo izquierda
 
         if ((centerHit.collider != null && centerHit.collider != PlayerCollider) ||
             (rightHit.collider != null && rightHit.collider != PlayerCollider) ||
@@ -760,8 +781,9 @@ public class Player : MonoBehaviour
 
     private void OnDrawGizmos() //dibujamos los 3 rayos
     {
-        Debug.DrawRay(transform.position + Vector3.right * 0.15f, Vector3.down * 0.24f, Color.red);
-        Debug.DrawRay(transform.position + Vector3.left * 0.15f, Vector3.down * 0.24f, Color.red);
-        Debug.DrawRay(transform.position, Vector3.down * 0.24f, Color.red);
+        Vector3 rayOrigin = GetGroundRayOrigin();
+        Debug.DrawRay(rayOrigin + Vector3.right * groundRayOffsetX, Vector3.down * groundRayLength, Color.red);
+        Debug.DrawRay(rayOrigin + Vector3.left * groundRayOffsetX, Vector3.down * groundRayLength, Color.red);
+        Debug.DrawRay(rayOrigin, Vector3.down * groundRayLength, Color.red);
     }
 }
