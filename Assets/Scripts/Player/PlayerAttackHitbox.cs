@@ -67,6 +67,19 @@ public sealed class PlayerAttackHitbox : MonoBehaviour
             return;
         }
 
+        Boss1 boss = other.GetComponentInParent<Boss1>();
+        if (boss != null)
+        {
+            if (hitEnemies.Contains(boss))
+            {
+                return;
+            }
+
+            hitEnemies.Add(boss);
+            boss.RecibirDanio(damage);
+            return;
+        }
+
         GameObject enemyRoot = other.transform.root.gameObject;
         if (!other.CompareTag(enemyTag) && !enemyRoot.CompareTag(enemyTag))
         {

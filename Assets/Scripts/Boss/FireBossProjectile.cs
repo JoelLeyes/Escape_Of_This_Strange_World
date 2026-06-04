@@ -3,12 +3,15 @@ using UnityEngine;
 public class FireBossProjectile : MonoBehaviour
 {
     [SerializeField] private bool alignToDirection = true;
+    [SerializeField] private float damage = 40f;
+    [SerializeField] private string playerTag = "Player";
 
     private Vector2 direction = Vector2.right;
     private float speed = 3f;
     private float lifeTime = 3f;
     private Rigidbody2D rb;
     private bool initialized;
+    private bool hasHit;
 
     private void Awake()
     {
@@ -41,6 +44,11 @@ public class FireBossProjectile : MonoBehaviour
             return;
         }
 
+        if (hasHit)
+        {
+            return;
+        }
+
         ApplyRotation();
 
         if (rb != null)
@@ -50,6 +58,51 @@ public class FireBossProjectile : MonoBehaviour
         }
 
         transform.position += (Vector3)(direction * speed * Time.deltaTime);
+    }
+
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        TryHit(other);
+    }
+
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        if (collision == null || collision.collider == null)
+        {
+            return;
+        }
+
+        TryHit(collision.collider);
+    }
+
+    private void TryHit(Collider2D other)
+    {
+        if (hasHit || other == null)
+        {
+            return;
+        }
+
+        Transform root = other.transform.root;
+        bool esPlayer = other.CompareTag(playerTag) || (root != null && root.CompareTag(playerTag));
+        if (!esPlayer)
+        {
+            return;
+        }
+
+        Player player = other.GetComponentInParent<Player>();
+        if (player == null && root != null)
+        {
+            player = root.GetComponentInChildren<Player>();
+        }
+
+        if (player == null)
+        {
+            return;
+        }
+
+        hasHit = true;
+        player.RecibirDanio(damage);
+        Destroy(gameObject);
     }
 
     private void ApplyRotation()
