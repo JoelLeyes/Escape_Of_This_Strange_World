@@ -13,7 +13,7 @@ public class Boss1 : MonoBehaviour
     [SerializeField] private Color healthBarFillColor = new Color(0.55f, 0.05f, 0.05f, 1f);
     [SerializeField] private string bossName = "NecroMancer";
     [SerializeField] private Color bossNameColor = new Color(0.85f, 0.1f, 0.1f, 1f);
-    [SerializeField] private Vector2 bossNameOffset = new Vector2(0f, 0.60f);
+    [SerializeField] private Vector2 bossNameOffset = new Vector2(0f, 0.40f);
     [SerializeField] private int bossNameFontSize = 64;
     [SerializeField] private float bossNameCharacterSize = 0.08f;
     [SerializeField] private int healthBarSortingOrder = 10;
