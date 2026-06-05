@@ -178,6 +178,6 @@ MonoBehaviour:
   interactionMessage: Presione E para abrir
   promptYOffset: 0.4
   possibleItems:
-  - prefab: {fileID: 4906554950764193426, guid: e62973a4e81535c4c97d03c9d41483bc, type: 3}
+  - prefab: {fileID: 4317482803829006333, guid: 7923fb1d3587b734b857927e38fa0eeb, type: 3}
     minAmount: 10
     maxAmount: 15
