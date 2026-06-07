@@ -4,8 +4,13 @@ using UnityEngine;
 
 public class SpawnEnemy : MonoBehaviour
 {
+    [Header("Spawn")]
+    [SerializeField] private Transform spawnPoint;
+    [SerializeField] private bool useThisTransformAsSpawnPoint = true;
+
     [Header("Prefabs")]
-    [SerializeField] private GameObject[] enemyPrefabs;
+    [SerializeField] private GameObject enemy1Prefab;
+    [SerializeField] private GameObject enemy2Prefab;
 
     [Header("Timing")]
     [SerializeField] private float minSpawnDelay = 2f;
@@ -17,7 +22,12 @@ public class SpawnEnemy : MonoBehaviour
 
     private void Start()
     {
-        if (enemyPrefabs == null || enemyPrefabs.Length == 0)
+        if (spawnPoint == null && useThisTransformAsSpawnPoint)
+        {
+            spawnPoint = transform;
+        }
+
+        if (enemy1Prefab == null && enemy2Prefab == null)
         {
             return;
         }
@@ -58,19 +68,30 @@ public class SpawnEnemy : MonoBehaviour
 
     private void SpawnOne()
     {
-        if (enemyPrefabs == null || enemyPrefabs.Length == 0)
-        {
-            return;
-        }
-
-        GameObject prefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
+        GameObject prefab = PickRandomPrefab();
         if (prefab == null)
         {
             return;
         }
 
-        GameObject instance = Instantiate(prefab, transform.position, Quaternion.identity);
+        Vector3 spawnPosition = spawnPoint != null ? spawnPoint.position : transform.position;
+        GameObject instance = Instantiate(prefab, spawnPosition, Quaternion.identity);
         alive.Add(instance);
+    }
+
+    private GameObject PickRandomPrefab()
+    {
+        if (enemy1Prefab != null && enemy2Prefab != null)
+        {
+            return Random.value < 0.5f ? enemy1Prefab : enemy2Prefab;
+        }
+
+        if (enemy1Prefab != null)
+        {
+            return enemy1Prefab;
+        }
+
+        return enemy2Prefab;
     }
 
     private void CleanupAlive()
