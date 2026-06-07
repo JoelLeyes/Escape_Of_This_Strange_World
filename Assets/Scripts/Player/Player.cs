@@ -1,10 +1,13 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
 
 public class Player : MonoBehaviour
 {
+    public static Player Instance { get; private set; }
+
     private enum AttackType
     {
         None,
@@ -70,7 +73,31 @@ public class Player : MonoBehaviour
     // Items
     private bool tieneArco;
     private int cantidadFlechas;
+    private Sprite bowSprite;
+    private Sprite arrowSprite;
     private UI.ItemDisplay itemDisplay;
+
+    private void Awake()
+    {
+        if (Instance != null && Instance != this)
+        {
+            Instance.transform.position = transform.position;
+            Instance.transform.rotation = transform.rotation;
+
+            if (Instance.Rigidbody2D != null)
+            {
+                Instance.Rigidbody2D.linearVelocity = Vector2.zero;
+                Instance.Rigidbody2D.angularVelocity = 0f;
+            }
+
+            Destroy(gameObject);
+            return;
+        }
+
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+        SceneManager.sceneLoaded += OnSceneLoaded;
+    }
 
     private void ForceEndActionLocks()
     {
@@ -163,9 +190,10 @@ public class Player : MonoBehaviour
         {
             // Grant bow
             tieneArco = true;
+            bowSprite = sprite;
             if (itemDisplay != null)
             {
-                itemDisplay.SetBowSprite(sprite);
+                itemDisplay.SetBowSprite(bowSprite);
             }
             Destroy(itemObj);
             return;
@@ -175,12 +203,13 @@ public class Player : MonoBehaviour
         {
             // Each arrow pickup grants 10 arrows
             cantidadFlechas += 10;
+            arrowSprite = sprite;
             if (itemDisplay != null)
             {
                 if (itemDisplay != null && itemDisplay.transform.childCount > 0 && itemDisplay != null)
                 {
                     // ensure arrow sprite is set if not
-                    itemDisplay.SetArrowSprite(sprite);
+                    itemDisplay.SetArrowSprite(arrowSprite);
                 }
 
                 itemDisplay.SetArrowCount(cantidadFlechas);
@@ -555,6 +584,29 @@ public class Player : MonoBehaviour
         SetDashEnemyCollisionIgnore(false);
     }
 
+    private void OnDestroy()
+    {
+        if (Instance == this)
+        {
+            SceneManager.sceneLoaded -= OnSceneLoaded;
+            Instance = null;
+        }
+    }
+
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        if (this == null)
+        {
+            return;
+        }
+
+        corazones = null;
+        itemDisplay = null;
+        EnsureHeartDisplay();
+        EnsureItemDisplay();
+        RefreshItemDisplay();
+    }
+
     public void RecibirDanio(float danio)
     {
         if (nivelPerdido || isDashing || Time.time < nextDamageTime)
@@ -743,6 +795,27 @@ public class Player : MonoBehaviour
         rect.anchoredPosition = hudItemsOffset;
 
         itemDisplay = displayObject.GetComponent<UI.ItemDisplay>();
+    }
+
+    private void RefreshItemDisplay()
+    {
+        if (itemDisplay == null)
+        {
+            return;
+        }
+
+        itemDisplay.SetBowSprite(tieneArco ? bowSprite : null);
+        itemDisplay.SetArrowSprite(cantidadFlechas > 0 ? arrowSprite : null);
+        itemDisplay.SetArrowCount(cantidadFlechas);
+    }
+
+    public static void ResetPersistentInstance()
+    {
+        if (Instance != null)
+        {
+            Destroy(Instance.gameObject);
+            Instance = null;
+        }
     }
 
     private Canvas FindOrCreateHudCanvas()

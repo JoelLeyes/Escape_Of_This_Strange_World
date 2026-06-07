@@ -43,17 +43,20 @@ public sealed class GameManager : MonoBehaviour
     public void StartGame()
     {
         ClearCheckpoint();
+        Player.ResetPersistentInstance();
         LoadScene(gameplaySceneName);
     }
 
     public void BackToMenu()
     {
         ClearCheckpoint();
+        Player.ResetPersistentInstance();
         LoadScene(menuSceneName);
     }
 
     public void GameOver()
     {
+        Player.ResetPersistentInstance();
         LoadScene(gameOverSceneName);
     }
 
