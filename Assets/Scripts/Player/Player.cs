@@ -29,6 +29,14 @@ public class Player : MonoBehaviour
     [SerializeField] private Vector2 hudCorazonSize = new Vector2(32f, 32f);
     [SerializeField] private float hudEspacioCorazones = 6f;
 
+    [Header("Vigor")]
+    [SerializeField] private float vigorMaximo = 100f;
+    [SerializeField] private float vigorActual = 100f;
+    [SerializeField] private float costoEspada = 20f;
+    [SerializeField] private float recargaVigorPorSegundo = 15f;
+    [SerializeField] private float retrasoRecargaVigor = 0.35f;
+    [SerializeField] private Vector2 hudVigorSize = new Vector2(190f, 18f);
+
     [Header("Items UI")]
     [SerializeField] private Vector2 hudItemsOffset = new Vector2(20f, -80f);
 
@@ -78,6 +86,8 @@ public class Player : MonoBehaviour
     private Sprite arrowSprite;
     private Sprite keyBossSprite;
     private UI.ItemDisplay itemDisplay;
+    private UI.VigorDisplay vigorDisplay;
+    private float nextVigorRegenTime;
 
     private void Awake()
     {
@@ -238,6 +248,50 @@ public class Player : MonoBehaviour
         return tieneKeyBoss;
     }
 
+    public float GetVigorCurrent()
+    {
+        return vigorActual;
+    }
+
+    public float GetVigorMax()
+    {
+        return vigorMaximo;
+    }
+
+    private bool TrySpendVigor(float amount)
+    {
+        if (amount <= 0f)
+        {
+            return true;
+        }
+
+        if (vigorActual < amount)
+        {
+            return false;
+        }
+
+        vigorActual = Mathf.Max(0f, vigorActual - amount);
+        nextVigorRegenTime = Time.time + retrasoRecargaVigor;
+        RefreshVigorDisplay();
+        return true;
+    }
+
+    private void RegenerateVigor()
+    {
+        if (vigorActual >= vigorMaximo)
+        {
+            return;
+        }
+
+        if (Time.time < nextVigorRegenTime)
+        {
+            return;
+        }
+
+        vigorActual = Mathf.Min(vigorMaximo, vigorActual + recargaVigorPorSegundo * Time.deltaTime);
+        RefreshVigorDisplay();
+    }
+
     void Start()
     {
         Rigidbody2D = GetComponent<Rigidbody2D>(); //esta funcion mete el componente Rigidbody dentro del script
@@ -249,8 +303,10 @@ public class Player : MonoBehaviour
         }
 
         corazonesActuales = corazonesMaximos;
+        vigorActual = Mathf.Clamp(vigorActual, 0f, vigorMaximo);
         ActualizarCorazones();
         EnsureHeartDisplay();
+        EnsureVigorDisplay();
 
         if (GameManager.Instance != null)
         {
@@ -261,6 +317,8 @@ public class Player : MonoBehaviour
         {
             Debug.LogWarning("No Animator found on Player. Animation states will be skipped.", this);
         }
+
+        RefreshVigorDisplay();
     }
 
     // Update is called once per frame
@@ -276,6 +334,8 @@ public class Player : MonoBehaviour
         {
             StopDash();
         }
+
+        RegenerateVigor();
 
         //RAYOS
         // Un poco más largos para detectar el suelo más consistente
@@ -485,6 +545,11 @@ public class Player : MonoBehaviour
             return;
         }
 
+        if (!TrySpendVigor(costoEspada))
+        {
+            return;
+        }
+
         canMove = false;
         attackActive = true;
         currentAttackType = AttackType.Sword;
@@ -620,9 +685,12 @@ public class Player : MonoBehaviour
 
         corazones = null;
         itemDisplay = null;
+        vigorDisplay = null;
         EnsureHeartDisplay();
         EnsureItemDisplay();
+        EnsureVigorDisplay();
         RefreshItemDisplay();
+        RefreshVigorDisplay();
     }
 
     public void RecibirDanio(float danio)
@@ -813,6 +881,51 @@ public class Player : MonoBehaviour
         rect.anchoredPosition = hudItemsOffset;
 
         itemDisplay = displayObject.GetComponent<UI.ItemDisplay>();
+    }
+
+    private void EnsureVigorDisplay()
+    {
+        if (!autoCrearHUD)
+        {
+            return;
+        }
+
+        if (vigorDisplay != null)
+        {
+            return;
+        }
+
+        Canvas canvas = FindOrCreateHudCanvas();
+        if (canvas == null)
+        {
+            return;
+        }
+
+        GameObject displayObject = new GameObject("VigorDisplay", typeof(RectTransform), typeof(UI.VigorDisplay));
+        displayObject.transform.SetParent(canvas.transform, false);
+
+        RectTransform rect = displayObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition = new Vector2(hudOffset.x + 430f, hudOffset.y - 8f);
+
+        vigorDisplay = displayObject.GetComponent<UI.VigorDisplay>();
+        if (vigorDisplay != null)
+        {
+            vigorDisplay.SetPlayer(this);
+            vigorDisplay.SetLayout(hudVigorSize);
+        }
+    }
+
+    private void RefreshVigorDisplay()
+    {
+        if (vigorDisplay == null)
+        {
+            return;
+        }
+
+        vigorDisplay.SetPlayer(this);
     }
 
     private void RefreshItemDisplay()
