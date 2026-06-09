@@ -37,6 +37,15 @@ public class Player : MonoBehaviour
     [SerializeField] private float retrasoRecargaVigor = 0.35f;
     [SerializeField] private Vector2 hudVigorSize = new Vector2(190f, 18f);
 
+    [Header("Mana")]
+    [SerializeField] private float manaMaximo = 100f;
+    [SerializeField] private float manaActual = 100f;
+    [SerializeField] private float costoFuego = 25f;
+    [SerializeField] private float recargaManaPorSegundo = 12f;
+    [SerializeField] private float retrasoRecargaMana = 0.45f;
+    [SerializeField] private Vector2 hudManaSize = new Vector2(190f, 18f);
+    [SerializeField] private Sprite manaPotionSprite;
+
     [Header("Items UI")]
     [SerializeField] private Vector2 hudItemsOffset = new Vector2(20f, -80f);
 
@@ -87,7 +96,9 @@ public class Player : MonoBehaviour
     private Sprite keyBossSprite;
     private UI.ItemDisplay itemDisplay;
     private UI.VigorDisplay vigorDisplay;
+    private UI.ManaDisplay manaDisplay;
     private float nextVigorRegenTime;
+    private float nextManaRegenTime;
 
     private void Awake()
     {
@@ -258,6 +269,16 @@ public class Player : MonoBehaviour
         return vigorMaximo;
     }
 
+    public float GetManaCurrent()
+    {
+        return manaActual;
+    }
+
+    public float GetManaMax()
+    {
+        return manaMaximo;
+    }
+
     private bool TrySpendVigor(float amount)
     {
         if (amount <= 0f)
@@ -292,6 +313,40 @@ public class Player : MonoBehaviour
         RefreshVigorDisplay();
     }
 
+    private bool TrySpendMana(float amount)
+    {
+        if (amount <= 0f)
+        {
+            return true;
+        }
+
+        if (manaActual < amount)
+        {
+            return false;
+        }
+
+        manaActual = Mathf.Max(0f, manaActual - amount);
+        nextManaRegenTime = Time.time + retrasoRecargaMana;
+        RefreshManaDisplay();
+        return true;
+    }
+
+    private void RegenerateMana()
+    {
+        if (manaActual >= manaMaximo)
+        {
+            return;
+        }
+
+        if (Time.time < nextManaRegenTime)
+        {
+            return;
+        }
+
+        manaActual = Mathf.Min(manaMaximo, manaActual + recargaManaPorSegundo * Time.deltaTime);
+        RefreshManaDisplay();
+    }
+
     void Start()
     {
         Rigidbody2D = GetComponent<Rigidbody2D>(); //esta funcion mete el componente Rigidbody dentro del script
@@ -304,9 +359,11 @@ public class Player : MonoBehaviour
 
         corazonesActuales = corazonesMaximos;
         vigorActual = Mathf.Clamp(vigorActual, 0f, vigorMaximo);
+        manaActual = Mathf.Clamp(manaActual, 0f, manaMaximo);
         ActualizarCorazones();
         EnsureHeartDisplay();
         EnsureVigorDisplay();
+        EnsureManaDisplay();
 
         if (GameManager.Instance != null)
         {
@@ -319,6 +376,7 @@ public class Player : MonoBehaviour
         }
 
         RefreshVigorDisplay();
+        RefreshManaDisplay();
     }
 
     // Update is called once per frame
@@ -336,6 +394,7 @@ public class Player : MonoBehaviour
         }
 
         RegenerateVigor();
+        RegenerateMana();
 
         //RAYOS
         // Un poco más largos para detectar el suelo más consistente
@@ -455,17 +514,21 @@ public class Player : MonoBehaviour
             return;
         }
 
+        if (firePrefab == null)
+        {
+            Debug.LogError("Fire prefab is not assigned in Player Inspector.", this);
+            return;
+        }
+
+        if (!TrySpendMana(costoFuego))
+        {
+            return;
+        }
+
         canMove = false;
         attackActive = true;
         currentAttackType = AttackType.Magic;
         Animator.SetTrigger("Magic");
-
-        if (firePrefab == null)
-        {
-            Debug.LogError("Fire prefab is not assigned in Player Inspector.", this);
-            ForceEndActionLocks();
-            return;
-        }
 
         int direction = transform.right.x >= 0f ? 1 : -1;
         Fire fire = Instantiate(firePrefab, transform.position, Quaternion.identity);
@@ -686,11 +749,14 @@ public class Player : MonoBehaviour
         corazones = null;
         itemDisplay = null;
         vigorDisplay = null;
+        manaDisplay = null;
         EnsureHeartDisplay();
         EnsureItemDisplay();
         EnsureVigorDisplay();
+        EnsureManaDisplay();
         RefreshItemDisplay();
         RefreshVigorDisplay();
+        RefreshManaDisplay();
     }
 
     public void RecibirDanio(float danio)
@@ -926,6 +992,53 @@ public class Player : MonoBehaviour
         }
 
         vigorDisplay.SetPlayer(this);
+    }
+
+    private void EnsureManaDisplay()
+    {
+        if (!autoCrearHUD)
+        {
+            return;
+        }
+
+        if (manaDisplay != null)
+        {
+            return;
+        }
+
+        Canvas canvas = FindOrCreateHudCanvas();
+        if (canvas == null)
+        {
+            return;
+        }
+
+        GameObject displayObject = new GameObject("ManaDisplay", typeof(RectTransform), typeof(UI.ManaDisplay));
+        displayObject.transform.SetParent(canvas.transform, false);
+
+        RectTransform rect = displayObject.GetComponent<RectTransform>();
+        rect.anchorMin = new Vector2(0f, 1f);
+        rect.anchorMax = new Vector2(0f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.anchoredPosition = new Vector2(hudOffset.x + 705f, hudOffset.y - 8f);
+
+        manaDisplay = displayObject.GetComponent<UI.ManaDisplay>();
+        if (manaDisplay != null)
+        {
+            manaDisplay.SetPlayer(this);
+            manaDisplay.SetLayout(hudManaSize);
+            manaDisplay.SetIconSprite(manaPotionSprite);
+        }
+    }
+
+    private void RefreshManaDisplay()
+    {
+        if (manaDisplay == null)
+        {
+            return;
+        }
+
+        manaDisplay.SetPlayer(this);
+        manaDisplay.SetIconSprite(manaPotionSprite);
     }
 
     private void RefreshItemDisplay()
