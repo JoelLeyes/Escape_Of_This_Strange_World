@@ -154,7 +154,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 0.51, y: 0.65}
+    oldSize: {x: 0.796875, y: 1.015625}
     newSize: {x: 0.51, y: 0.65}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -174,6 +174,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 55e9f503bd0c6954d814da663dea4795, type: 3}
   m_Name: 
   m_EditorClassIdentifier: '::'
+  doorId: Door
   interactionRadius: 1.5
   interactionMessage: Presione E para abrir
+  interactionMessageOpen: Presione E para Entrar
   promptYOffset: 0.6

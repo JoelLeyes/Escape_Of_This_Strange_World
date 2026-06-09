@@ -10,6 +10,7 @@ namespace UI
         private Image arrowImage;
         private Image keyImage;
         private Text arrowCountText;
+        private int currentArrowCount;
 
         private void Awake()
         {
@@ -61,11 +62,18 @@ namespace UI
             arrowCountText = countObj.GetComponent<Text>();
             arrowCountText.alignment = TextAnchor.MiddleLeft;
             // Ensure a usable font is assigned when creating text at runtime.
-            Font f = Resources.GetBuiltinResource<Font>("Arial.ttf");
+            Font f = null;
+            try
+            {
+                // Unity newer versions may not expose Arial.ttf as builtin; use LegacyRuntime.ttf as fallback
+                f = Resources.GetBuiltinResource<Font>("LegacyRuntime.ttf");
+            }
+            catch { f = null; }
+
             if (f == null)
             {
-                // Try OS Arial
-                f = Font.CreateDynamicFontFromOSFont("Arial", 32);
+                // Try OS Arial as a fallback if builtin resource isn't available
+                try { f = Font.CreateDynamicFontFromOSFont("Arial", 32); } catch { f = null; }
             }
 
             if (f == null)
@@ -102,8 +110,20 @@ namespace UI
                 }
             }
 
-            // Try immediate font assignment; if assets aren't ready, a coroutine will retry next frame
-            TryAssignFont(f);
+            // Immediate assignment: set font right away if we found one so the count is visible immediately.
+            if (arrowCountText != null && f != null)
+            {
+                try
+                {
+                    arrowCountText.font = f;
+                    arrowCountText.fontStyle = FontStyle.Bold;
+                    arrowCountText.fontSize = 32;
+                    try { arrowCountText.material = f.material; } catch { }
+                }
+                catch { }
+            }
+
+            // Also keep the coroutine to retry assignment if font isn't ready yet.
             StartCoroutine(TryAssignFontNextFrame());
 
             // Add outline to improve contrast against backgrounds
@@ -223,17 +243,26 @@ namespace UI
             {
                 arrowImage.enabled = false;
                 arrowImage.sprite = null;
-                arrowCountText.text = "";
+                if (currentArrowCount <= 0 && arrowCountText != null)
+                {
+                    arrowCountText.text = "";
+                }
                 return;
             }
 
             arrowImage.sprite = s;
             arrowImage.preserveAspect = true;
             arrowImage.enabled = true;
+
+            if (arrowCountText != null && currentArrowCount > 0)
+            {
+                arrowCountText.gameObject.SetActive(true);
+            }
         }
 
         public void SetArrowCount(int count)
         {
+            currentArrowCount = count;
             if (count <= 0)
             {
                 if (arrowImage != null) arrowImage.enabled = (arrowImage.sprite != null);
