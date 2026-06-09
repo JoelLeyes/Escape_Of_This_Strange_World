@@ -72,9 +72,11 @@ public class Player : MonoBehaviour
 
     // Items
     private bool tieneArco;
+    private bool tieneKeyBoss;
     private int cantidadFlechas;
     private Sprite bowSprite;
     private Sprite arrowSprite;
+    private Sprite keyBossSprite;
     private UI.ItemDisplay itemDisplay;
 
     private void Awake()
@@ -218,6 +220,22 @@ public class Player : MonoBehaviour
             Destroy(itemObj);
             return;
         }
+    }
+
+    public void CollectKeyBoss(Sprite sprite)
+    {
+        tieneKeyBoss = true;
+        keyBossSprite = sprite;
+
+        if (itemDisplay != null)
+        {
+            itemDisplay.SetKeyBossSprite(keyBossSprite);
+        }
+    }
+
+    public bool HasKeyBoss()
+    {
+        return tieneKeyBoss;
     }
 
     void Start()
@@ -807,6 +825,7 @@ public class Player : MonoBehaviour
         itemDisplay.SetBowSprite(tieneArco ? bowSprite : null);
         itemDisplay.SetArrowSprite(cantidadFlechas > 0 ? arrowSprite : null);
         itemDisplay.SetArrowCount(cantidadFlechas);
+        itemDisplay.SetKeyBossSprite(tieneKeyBoss ? keyBossSprite : null);
     }
 
     public static void ResetPersistentInstance()

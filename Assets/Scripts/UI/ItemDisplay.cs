@@ -8,13 +8,14 @@ namespace UI
     {
         private Image bowImage;
         private Image arrowImage;
+        private Image keyImage;
         private Text arrowCountText;
 
         private void Awake()
         {
             // Create layout: Bow on left, Arrow + count on right
             RectTransform rect = GetComponent<RectTransform>();
-            rect.sizeDelta = new Vector2(320f, 64f);
+            rect.sizeDelta = new Vector2(420f, 64f);
 
             GameObject bowObj = new GameObject("Bow", typeof(RectTransform), typeof(Image));
             bowObj.transform.SetParent(transform, false);
@@ -37,6 +38,17 @@ namespace UI
             ar.sizeDelta = new Vector2(48f, 48f);
             arrowImage = arrowObj.GetComponent<Image>();
             arrowImage.enabled = false;
+
+            GameObject keyObj = new GameObject("KeyBoss", typeof(RectTransform), typeof(Image));
+            keyObj.transform.SetParent(transform, false);
+            RectTransform kr = keyObj.GetComponent<RectTransform>();
+            kr.anchorMin = new Vector2(0f, 1f);
+            kr.anchorMax = new Vector2(0f, 1f);
+            kr.pivot = new Vector2(0f, 1f);
+            kr.anchoredPosition = new Vector2(226f, 0f);
+            kr.sizeDelta = new Vector2(48f, 48f);
+            keyImage = keyObj.GetComponent<Image>();
+            keyImage.enabled = false;
 
             GameObject countObj = new GameObject("ArrowCount", typeof(RectTransform), typeof(CanvasRenderer), typeof(Text));
             countObj.transform.SetParent(transform, false);
@@ -236,6 +248,20 @@ namespace UI
                 arrowCountText.color = new Color(1f, 1f, 1f, 1f);
             }
             if (arrowImage != null) arrowImage.enabled = (arrowImage.sprite != null);
+        }
+
+        public void SetKeyBossSprite(Sprite s)
+        {
+            if (s == null)
+            {
+                keyImage.enabled = false;
+                keyImage.sprite = null;
+                return;
+            }
+
+            keyImage.sprite = s;
+            keyImage.preserveAspect = true;
+            keyImage.enabled = true;
         }
     }
 }
