@@ -3,6 +3,7 @@ using UnityEngine;
 public class FireBossProjectile : MonoBehaviour
 {
     [SerializeField] private bool alignToDirection = true;
+    [SerializeField] private float spriteRotationOffsetDegrees = 90f;
     [SerializeField] private float damage = 40f;
     [SerializeField] private string playerTag = "Player";
 
@@ -117,7 +118,7 @@ public class FireBossProjectile : MonoBehaviour
             return;
         }
 
-        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+        float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg + spriteRotationOffsetDegrees;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
     }
 }

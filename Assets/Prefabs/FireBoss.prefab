@@ -130,6 +130,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::FireBossProjectile
   alignToDirection: 1
+  spriteRotationOffsetDegrees: 90
   damage: 40
   playerTag: Player
 --- !u!50 &8451029384756100001
