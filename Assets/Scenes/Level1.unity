@@ -399,6 +399,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1015422883}
     m_Modifications:
+    - target: {fileID: -6235417701516761889, guid: f66c5ce5d4d2acc4eab49c0010639652, type: 3}
+      propertyPath: doorId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -6235417701516761889, guid: f66c5ce5d4d2acc4eab49c0010639652, type: 3}
+      propertyPath: interactionMessageOpen
+      value: Presione E para Entrar
+      objectReference: {fileID: 0}
     - target: {fileID: 1670479274973641806, guid: f66c5ce5d4d2acc4eab49c0010639652, type: 3}
       propertyPath: m_Name
       value: Door
@@ -3144,6 +3152,14 @@ PrefabInstance:
       propertyPath: possibleItems.Array.data[0].prefab
       value: 
       objectReference: {fileID: 4317482803829006333, guid: 7923fb1d3587b734b857927e38fa0eeb, type: 3}
+    - target: {fileID: 6524176073757923440, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
+      propertyPath: possibleItems.Array.data[0].maxAmount
+      value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 6524176073757923440, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
+      propertyPath: possibleItems.Array.data[0].minAmount
+      value: 5
+      objectReference: {fileID: 0}
     - target: {fileID: 7044497778912146071, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
       propertyPath: m_LocalPosition.x
       value: -39.3707
@@ -39489,8 +39505,8 @@ Tilemap:
   - first: {x: 6, y: -4, z: 0}
     second:
       serializedVersion: 2
-      m_TileIndex: 4
-      m_TileSpriteIndex: 8
+      m_TileIndex: 15
+      m_TileSpriteIndex: 12
       m_TileMatrixIndex: 0
       m_TileColorIndex: 0
       m_TileObjectToInstantiateIndex: 65535
@@ -50556,7 +50572,7 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: 8d604bd2fc2bf4c4db2ece3a0b64739a, type: 2}
   - m_RefCount: 5
     m_Data: {fileID: 11400000, guid: c12793499616e054698ade02f5a0e533, type: 2}
-  - m_RefCount: 121
+  - m_RefCount: 120
     m_Data: {fileID: 11400000, guid: 967d72c63086e9a488b19baa59e0a27f, type: 2}
   - m_RefCount: 6
     m_Data: {fileID: 11400000, guid: 7caa6a8388e81594a8e2c261601b03b4, type: 2}
@@ -50578,7 +50594,7 @@ Tilemap:
     m_Data: {fileID: 11400000, guid: 426bfa7883d1a9e4cb5e22ab8a28e762, type: 2}
   - m_RefCount: 4065
     m_Data: {fileID: 11400000, guid: 97a030f12b0d10c4082c8ffcdb32671c, type: 2}
-  - m_RefCount: 2
+  - m_RefCount: 3
     m_Data: {fileID: 11400000, guid: 86412546dd9099547b06c5d27e4bef02, type: 2}
   - m_RefCount: 1
     m_Data: {fileID: 11400000, guid: 0fdd1af44e2efe441957e144654e959f, type: 2}
@@ -50601,7 +50617,7 @@ Tilemap:
     m_Data: {fileID: -5512324847105312968, guid: 8c93bee75a03abb4ab7ef6972dfbaf34, type: 3}
   - m_RefCount: 5
     m_Data: {fileID: 5315073545871111437, guid: 294a077135fd9364b9a9eae4aa574431, type: 3}
-  - m_RefCount: 121
+  - m_RefCount: 120
     m_Data: {fileID: -1102687272, guid: 294a077135fd9364b9a9eae4aa574431, type: 3}
   - m_RefCount: 6
     m_Data: {fileID: 315754446, guid: 294a077135fd9364b9a9eae4aa574431, type: 3}
@@ -50609,7 +50625,7 @@ Tilemap:
     m_Data: {fileID: 29807741, guid: b5cdb71f9dbf5dd44b24cf44b5ca9e32, type: 3}
   - m_RefCount: 5
     m_Data: {fileID: -4373184736405950995, guid: b5cdb71f9dbf5dd44b24cf44b5ca9e32, type: 3}
-  - m_RefCount: 2
+  - m_RefCount: 3
     m_Data: {fileID: 1610827316, guid: b5cdb71f9dbf5dd44b24cf44b5ca9e32, type: 3}
   - m_RefCount: 2
     m_Data: {fileID: 375651591, guid: b5cdb71f9dbf5dd44b24cf44b5ca9e32, type: 3}
@@ -50788,6 +50804,14 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1015422883}
     m_Modifications:
+    - target: {fileID: -6235417701516761889, guid: f66c5ce5d4d2acc4eab49c0010639652, type: 3}
+      propertyPath: doorId
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -6235417701516761889, guid: f66c5ce5d4d2acc4eab49c0010639652, type: 3}
+      propertyPath: interactionMessageOpen
+      value: Presione E para Entrar
+      objectReference: {fileID: 0}
     - target: {fileID: 1670479274973641806, guid: f66c5ce5d4d2acc4eab49c0010639652, type: 3}
       propertyPath: m_Name
       value: Door (1)
@@ -51246,11 +51270,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 6886546781149008248, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 40.72
+      value: 3.08
       objectReference: {fileID: 0}
     - target: {fileID: 6886546781149008248, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -1.22
+      value: -0.17
       objectReference: {fileID: 0}
     - target: {fileID: 6886546781149008248, guid: e4b33d812844bb647841e71abbe4a3cb, type: 3}
       propertyPath: m_LocalPosition.z

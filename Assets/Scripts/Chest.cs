@@ -102,7 +102,7 @@ public class Chest : MonoBehaviour
             animator.SetTrigger(openTriggerName);
         }
 
-        // Generar objetos según su rango de cantidad
+        // Generar solo un item visible por tipo y transmitir la cantidad real al pickup
         if (possibleItems != null && possibleItems.Count > 0)
         {
             foreach (ChestItem item in possibleItems)
@@ -110,11 +110,19 @@ public class Chest : MonoBehaviour
                 if (item.prefab != null)
                 {
                     int amount = Random.Range(item.minAmount, item.maxAmount + 1);
-
-                    for (int i = 0; i < amount; i++)
+                    if (amount <= 0)
                     {
-                        Vector3 spawnPos = transform.position + Vector3.up * (0.5f + i * 0.2f);
-                        Instantiate(item.prefab, spawnPos, Quaternion.identity);
+                        continue;
+                    }
+
+                    Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
+                    GameObject spawned = Instantiate(item.prefab, spawnPos, Quaternion.identity);
+
+                    Arrow_Item arrowItem = spawned.GetComponentInChildren<Arrow_Item>();
+                    if (arrowItem != null)
+                    {
+                        // Mantener la lógica de 10 flechas por unidad de cantidad de item
+                        arrowItem.amount = amount * 10;
                     }
                 }
             }

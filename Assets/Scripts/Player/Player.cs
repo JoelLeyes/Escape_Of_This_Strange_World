@@ -224,14 +224,19 @@ public class Player : MonoBehaviour
 
         if (isArrow)
         {
-            // Each arrow pickup grants 10 arrows
-            cantidadFlechas += 10;
+            int arrowAmount = 10;
+            Arrow_Item arrowItem = itemObj.GetComponentInChildren<Arrow_Item>();
+            if (arrowItem != null && arrowItem.amount > 0)
+            {
+                arrowAmount = arrowItem.amount;
+            }
+
+            cantidadFlechas += arrowAmount;
             arrowSprite = sprite;
             if (itemDisplay != null)
             {
-                if (itemDisplay != null && itemDisplay.transform.childCount > 0 && itemDisplay != null)
+                if (itemDisplay.transform.childCount > 0)
                 {
-                    // ensure arrow sprite is set if not
                     itemDisplay.SetArrowSprite(arrowSprite);
                 }
 

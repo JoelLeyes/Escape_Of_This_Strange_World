@@ -5,8 +5,10 @@ using UnityEngine.InputSystem;
 public class Door : MonoBehaviour
 {
     private string openTriggerName = "Open";
+    [SerializeField] private string doorId = "Door";
     [SerializeField] private float interactionRadius = 1.5f;
     [SerializeField] private string interactionMessage = "Presione E para abrir";
+    [SerializeField] private string interactionMessageOpen = "Presione E para Entrar";
     [SerializeField] private float promptYOffset = 0.6f;
 
     private Animator animator;
@@ -20,23 +22,24 @@ public class Door : MonoBehaviour
 
     private void Update()
     {
-        if (isOpen)
-        {
-            playerNearby = false;
-            return;
-        }
-
         playerNearby = IsPlayerNearby();
 
         if (playerNearby && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
-            OpenDoor();
+            if (!isOpen)
+            {
+                OpenDoor();
+            }
+            else
+            {
+                TeleportPlayerToMatchingDoor();
+            }
         }
     }
 
     private void OnGUI()
     {
-        if (!playerNearby || isOpen || Camera.main == null)
+        if (!playerNearby || Camera.main == null)
         {
             return;
         }
@@ -63,7 +66,8 @@ public class Door : MonoBehaviour
             labelWidth,
             labelHeight);
 
-        GUI.Label(labelRect, interactionMessage, style);
+        string messageToShow = isOpen ? interactionMessageOpen : interactionMessage;
+        GUI.Label(labelRect, messageToShow, style);
     }
 
     private bool IsPlayerNearby()
@@ -93,5 +97,61 @@ public class Door : MonoBehaviour
         {
             animator.SetTrigger(openTriggerName);
         }
+    }
+
+    private void TeleportPlayerToMatchingDoor()
+    {
+        if (string.IsNullOrEmpty(doorId))
+        {
+            return;
+        }
+
+        Player player = GetNearbyPlayer();
+        if (player == null)
+        {
+            return;
+        }
+
+        Door[] doors = FindObjectsOfType<Door>();
+        Door targetDoor = null;
+        for (int i = 0; i < doors.Length; i++)
+        {
+            if (doors[i] == null || doors[i] == this)
+            {
+                continue;
+            }
+
+            if (doors[i].doorId == doorId)
+            {
+                targetDoor = doors[i];
+                break;
+            }
+        }
+
+        if (targetDoor == null)
+        {
+            return;
+        }
+
+        Vector3 teleportPosition = targetDoor.transform.position + Vector3.up * 1f;
+        player.transform.position = teleportPosition;
+    }
+
+    private Player GetNearbyPlayer()
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i] != null)
+            {
+                Player player = colliders[i].GetComponentInParent<Player>();
+                if (player != null)
+                {
+                    return player;
+                }
+            }
+        }
+
+        return null;
     }
 }
