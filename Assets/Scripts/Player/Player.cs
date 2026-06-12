@@ -69,6 +69,7 @@ public class Player : MonoBehaviour
     [SerializeField] private Arrow arrowPrefab;
     [SerializeField] private PlayerAttackHitbox swordHitbox;
     [SerializeField] private AudioClip swordSwingClip;
+    [SerializeField] private AudioClip fireAttackClip;
     [SerializeField] private AudioClip runningClip;
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
@@ -109,6 +110,7 @@ public class Player : MonoBehaviour
 
 #if UNITY_EDITOR
     private const string SwordSwingClipPath = "Assets/Sound/SFX_swordSwing.wav";
+    private const string FireClipPath = "Assets/Sound/SFX_flameShot1.wav";
     private const string RunningClipPath = "Assets/Sound/RuningStone.wav";
 #endif
 
@@ -449,6 +451,11 @@ public class Player : MonoBehaviour
             swordSwingClip = AssetDatabase.LoadAssetAtPath<AudioClip>(SwordSwingClipPath);
         }
 
+        if (fireAttackClip == null)
+        {
+            fireAttackClip = AssetDatabase.LoadAssetAtPath<AudioClip>(FireClipPath);
+        }
+
         if (runningClip == null)
         {
             runningClip = AssetDatabase.LoadAssetAtPath<AudioClip>(RunningClipPath);
@@ -464,6 +471,16 @@ public class Player : MonoBehaviour
         }
 
         audioSource.PlayOneShot(swordSwingClip);
+    }
+
+    private void PlayFireAttackSound()
+    {
+        if (audioSource == null || fireAttackClip == null)
+        {
+            return;
+        }
+
+        audioSource.PlayOneShot(fireAttackClip);
     }
 
     private void UpdateRunningSound()
@@ -661,6 +678,7 @@ public class Player : MonoBehaviour
         attackActive = true;
         currentAttackType = AttackType.Magic;
         Animator.SetTrigger("Magic");
+        PlayFireAttackSound();
 
         int direction = transform.right.x >= 0f ? 1 : -1;
         Fire fire = Instantiate(firePrefab, transform.position, Quaternion.identity);

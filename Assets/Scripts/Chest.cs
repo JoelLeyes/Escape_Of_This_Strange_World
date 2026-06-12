@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [System.Serializable]
 public class ChestItem
@@ -17,6 +20,7 @@ public class Chest : MonoBehaviour
     [SerializeField] private float interactionRadius = 1.5f;
     [SerializeField] private string interactionMessage = "Presione E para abrir";
     [SerializeField] private float promptYOffset = 0.6f;
+    [SerializeField] private AudioClip doorOpenClip;
 
     // Lista de objetos posibles con sus cantidades
     [SerializeField] private List<ChestItem> possibleItems;
@@ -25,9 +29,34 @@ public class Chest : MonoBehaviour
     private bool isOpen;
     private bool playerNearby;
 
+#if UNITY_EDITOR
+    private const string DoorOpenClipPath = "Assets/Sound/DoorOpen 5.wav";
+#endif
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        AutoAssignDoorOpenClip();
+    }
+
+    private void AutoAssignDoorOpenClip()
+    {
+#if UNITY_EDITOR
+        if (doorOpenClip == null)
+        {
+            doorOpenClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DoorOpenClipPath);
+        }
+#endif
+    }
+
+    private void PlayDoorOpenSound()
+    {
+        if (doorOpenClip == null)
+        {
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(doorOpenClip, transform.position, 1f);
     }
 
     private void Update()
@@ -96,6 +125,8 @@ public class Chest : MonoBehaviour
     {
         if (isOpen) return;
         isOpen = true;
+
+        PlayDoorOpenSound();
 
         if (animator != null)
         {

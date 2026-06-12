@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [RequireComponent(typeof(Collider2D))]
 public class Door_Boss : MonoBehaviour
@@ -11,6 +14,7 @@ public class Door_Boss : MonoBehaviour
     [SerializeField] private string missingKeyMessage = "Necesitas la KeyBoss";
     [SerializeField] private float missingKeyMessageDuration = 1.5f;
     [SerializeField] private float promptYOffset = 1.55f;
+    [SerializeField] private AudioClip doorOpenClip;
 
     private Animator animator;
     private bool isOpen;
@@ -22,9 +26,34 @@ public class Door_Boss : MonoBehaviour
     [Header("Scene")]
     [SerializeField] private string bossSceneName = "Level1Boss";
 
+#if UNITY_EDITOR
+    private const string DoorOpenClipPath = "Assets/Sound/DoorOpen 5.wav";
+#endif
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        AutoAssignDoorOpenClip();
+    }
+
+    private void AutoAssignDoorOpenClip()
+    {
+#if UNITY_EDITOR
+        if (doorOpenClip == null)
+        {
+            doorOpenClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DoorOpenClipPath);
+        }
+#endif
+    }
+
+    private void PlayDoorOpenSound()
+    {
+        if (doorOpenClip == null)
+        {
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(doorOpenClip, transform.position, 1f);
     }
 
     private void Update()
@@ -161,6 +190,8 @@ public class Door_Boss : MonoBehaviour
         }
 
         isOpen = true;
+
+        PlayDoorOpenSound();
 
         if (animator != null)
         {

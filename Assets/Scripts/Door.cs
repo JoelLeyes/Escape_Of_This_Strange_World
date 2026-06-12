@@ -1,5 +1,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 [RequireComponent(typeof(Collider2D))]
 public class Door : MonoBehaviour
@@ -10,14 +13,40 @@ public class Door : MonoBehaviour
     [SerializeField] private string interactionMessage = "Presione E para abrir";
     [SerializeField] private string interactionMessageOpen = "Presione E para Entrar";
     [SerializeField] private float promptYOffset = 0.6f;
+    [SerializeField] private AudioClip doorOpenClip;
 
     private Animator animator;
     private bool isOpen;
     private bool playerNearby;
 
+#if UNITY_EDITOR
+    private const string DoorOpenClipPath = "Assets/Sound/DoorOpen 5.wav";
+#endif
+
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        AutoAssignDoorOpenClip();
+    }
+
+    private void AutoAssignDoorOpenClip()
+    {
+#if UNITY_EDITOR
+        if (doorOpenClip == null)
+        {
+            doorOpenClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DoorOpenClipPath);
+        }
+#endif
+    }
+
+    private void PlayDoorOpenSound()
+    {
+        if (doorOpenClip == null)
+        {
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(doorOpenClip, transform.position, 1f);
     }
 
     private void Update()
@@ -92,6 +121,8 @@ public class Door : MonoBehaviour
         }
 
         isOpen = true;
+
+        PlayDoorOpenSound();
 
         if (animator != null)
         {
