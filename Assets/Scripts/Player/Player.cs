@@ -3,6 +3,9 @@ using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using System.Collections.Generic;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Player : MonoBehaviour
 {
@@ -65,10 +68,14 @@ public class Player : MonoBehaviour
     [SerializeField] private Fire firePrefab;
     [SerializeField] private Arrow arrowPrefab;
     [SerializeField] private PlayerAttackHitbox swordHitbox;
+    [SerializeField] private AudioClip swordSwingClip;
+    [SerializeField] private AudioClip runningClip;
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
     private Collider2D PlayerCollider;
     private Animator Animator;
+    private AudioSource audioSource;
+    private AudioSource runningAudioSource;
     private float Horizontal;
     private bool Grounded;
     private float nextJumpTime;
@@ -99,6 +106,11 @@ public class Player : MonoBehaviour
     private UI.ManaDisplay manaDisplay;
     private float nextVigorRegenTime;
     private float nextManaRegenTime;
+
+#if UNITY_EDITOR
+    private const string SwordSwingClipPath = "Assets/Sound/SFX_swordSwing.wav";
+    private const string RunningClipPath = "Assets/Sound/RuningStone.wav";
+#endif
 
     private void Awake()
     {
@@ -362,6 +374,9 @@ public class Player : MonoBehaviour
             swordHitbox = GetComponentInChildren<PlayerAttackHitbox>(true);
         }
 
+        EnsureAudioSources();
+        AutoAssignAudioClips();
+
         corazonesActuales = corazonesMaximos;
         vigorActual = Mathf.Clamp(vigorActual, 0f, vigorMaximo);
         manaActual = Mathf.Clamp(manaActual, 0f, manaMaximo);
@@ -384,12 +399,120 @@ public class Player : MonoBehaviour
         RefreshManaDisplay();
     }
 
+    private void EnsureAudioSources()
+    {
+        AudioSource[] sources = GetComponents<AudioSource>();
+
+        if (sources.Length > 0)
+        {
+            audioSource = sources[0];
+        }
+
+        if (audioSource == null)
+        {
+            audioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        sources = GetComponents<AudioSource>();
+        if (sources.Length > 1)
+        {
+            runningAudioSource = sources[1];
+        }
+
+        if (runningAudioSource == null)
+        {
+            runningAudioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        ConfigureAudioSource(audioSource);
+        ConfigureAudioSource(runningAudioSource);
+    }
+
+    private void ConfigureAudioSource(AudioSource source)
+    {
+        if (source == null)
+        {
+            return;
+        }
+
+        source.playOnAwake = false;
+        source.loop = false;
+        source.spatialBlend = 0f;
+        source.volume = 1f;
+    }
+
+    private void AutoAssignAudioClips()
+    {
+#if UNITY_EDITOR
+        if (swordSwingClip == null)
+        {
+            swordSwingClip = AssetDatabase.LoadAssetAtPath<AudioClip>(SwordSwingClipPath);
+        }
+
+        if (runningClip == null)
+        {
+            runningClip = AssetDatabase.LoadAssetAtPath<AudioClip>(RunningClipPath);
+        }
+#endif
+    }
+
+    private void PlaySwordSwingSound()
+    {
+        if (audioSource == null || swordSwingClip == null)
+        {
+            return;
+        }
+
+        audioSource.PlayOneShot(swordSwingClip);
+    }
+
+    private void UpdateRunningSound()
+    {
+        if (runningAudioSource == null || runningClip == null)
+        {
+            return;
+        }
+
+        bool shouldPlay = canMove && Grounded && !isDashing && !attackActive && Mathf.Abs(Horizontal) > 0f;
+
+        if (shouldPlay)
+        {
+            if (!runningAudioSource.isPlaying || runningAudioSource.clip != runningClip)
+            {
+                runningAudioSource.clip = runningClip;
+                runningAudioSource.loop = true;
+                runningAudioSource.Play();
+            }
+
+            return;
+        }
+
+        if (runningAudioSource.isPlaying && runningAudioSource.clip == runningClip)
+        {
+            runningAudioSource.Stop();
+        }
+    }
+
+    private void StopRunningSound()
+    {
+        if (runningAudioSource == null || runningClip == null)
+        {
+            return;
+        }
+
+        if (runningAudioSource.isPlaying && runningAudioSource.clip == runningClip)
+        {
+            runningAudioSource.Stop();
+        }
+    }
+
     // Update is called once per frame
     void Update()
     {
         // No procesar input si el juego está pausado
         if (GameManager.Instance != null && GameManager.Instance.IsGamePaused())
         {
+            StopRunningSound();
             return;
         }
 
@@ -428,6 +551,8 @@ public class Player : MonoBehaviour
             {
                 Animator.SetBool("Running", false);
             }
+
+            StopRunningSound();
             return;
         }
 
@@ -465,6 +590,8 @@ public class Player : MonoBehaviour
         SwordAttack();
         MagicAttack();
         BowAttack();
+
+        UpdateRunningSound();
     }
     private float GetHorizontalInput()
     {
@@ -636,6 +763,7 @@ public class Player : MonoBehaviour
 
         if (currentAttackType == AttackType.Sword && swordHitbox != null)
         {
+            PlaySwordSwingSound();
             swordHitbox.BeginAttack();
         }
     }
@@ -733,10 +861,13 @@ public class Player : MonoBehaviour
     {
         SetDashVisual(false);
         SetDashEnemyCollisionIgnore(false);
+        StopRunningSound();
     }
 
     private void OnDestroy()
     {
+        StopRunningSound();
+
         if (Instance == this)
         {
             SceneManager.sceneLoaded -= OnSceneLoaded;

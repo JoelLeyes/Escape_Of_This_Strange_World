@@ -155,6 +155,7 @@ MonoBehaviour:
   hudEspacioCorazones: 6
   hudItemsOffset: {x: 20, y: -80}
   manaPotionSprite: {fileID: 7768578539330090624, guid: 232e41c9f1b92664b92882280c244259, type: 3}
+  swordSwingClip: {fileID: 8300000, guid: 1564f7f91ddd9e54c8df6d97b227c05f, type: 3}
   groundRayLength: 0.065
   groundRayOffsetX: 0.15
   groundRayStartOffsetFromColliderBottom: 0.02
