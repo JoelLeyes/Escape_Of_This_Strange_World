@@ -1,4 +1,7 @@
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Boss1 : MonoBehaviour
 {
@@ -18,6 +21,7 @@ public class Boss1 : MonoBehaviour
     [SerializeField] private float bossNameCharacterSize = 0.08f;
     [SerializeField] private int healthBarSortingOrder = 10;
     [SerializeField] private string healthBarSortingLayer = "Default";
+    [SerializeField] private AudioClip damageClip;
 
     [Header("Movimiento")]
     [SerializeField] private Transform[] points;
@@ -54,6 +58,17 @@ public class Boss1 : MonoBehaviour
     private Transform healthBarRoot;
     private Transform healthBarFill;
     private static Sprite sharedBarSprite;
+    private AudioSource damageAudioSource;
+
+#if UNITY_EDITOR
+    private const string DamageClipPath = "Assets/Sound/SFX_hit&damageEsqueleto13.wav";
+#endif
+
+    private void Awake()
+    {
+        EnsureDamageAudioSource();
+        AutoAssignDamageClip();
+    }
 
     private void Start()
     {
@@ -63,6 +78,44 @@ public class Boss1 : MonoBehaviour
         UpdateHealthBar();
         EnsurePoints();
         PickNextTarget();
+    }
+
+    private void EnsureDamageAudioSource()
+    {
+        if (damageAudioSource == null)
+        {
+            damageAudioSource = GetComponent<AudioSource>();
+        }
+
+        if (damageAudioSource == null)
+        {
+            damageAudioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        damageAudioSource.playOnAwake = false;
+        damageAudioSource.loop = false;
+        damageAudioSource.spatialBlend = 0f;
+        damageAudioSource.volume = 1f;
+    }
+
+    private void AutoAssignDamageClip()
+    {
+#if UNITY_EDITOR
+        if (damageClip == null)
+        {
+            damageClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DamageClipPath);
+        }
+#endif
+    }
+
+    private void PlayDamageSound()
+    {
+        if (damageAudioSource == null || damageClip == null)
+        {
+            return;
+        }
+
+        damageAudioSource.PlayOneShot(damageClip);
     }
 
     private void Update()
@@ -237,6 +290,7 @@ public class Boss1 : MonoBehaviour
     {
         vida = Mathf.Max(vida - danio, 0f);
         UpdateHealthBar();
+        PlayDamageSound();
 
         if (vida <= 0f)
         {

@@ -8143,6 +8143,7 @@ MonoBehaviour:
   fireBossAngle2: 270
   fireBossAngle3: 315
   fireBossAngle4: 180
+  damageClip: {fileID: 8300000, guid: 46f6d562119219a44a98d8d3dc24bd22, type: 3}
 --- !u!1 &1443268598
 GameObject:
   m_ObjectHideFlags: 0

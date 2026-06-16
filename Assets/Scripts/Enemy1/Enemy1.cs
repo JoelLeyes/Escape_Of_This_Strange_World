@@ -1,4 +1,7 @@
 using UnityEngine;
+#if UNITY_EDITOR
+using UnityEditor;
+#endif
 
 public class Enemy1 : MonoBehaviour
 {
@@ -28,6 +31,7 @@ public class Enemy1 : MonoBehaviour
     [SerializeField] private float danioGolpe = 25f;
     [SerializeField] private float radioGolpe = 1.3f;
     [SerializeField] private Vector2 offsetGolpe = new Vector2(0.7f, 0.2f);
+    [SerializeField] private AudioClip damageClip;
 
     private float distanciaDelObjetivo;
     private float distanciaDelObjetivoEjeY;
@@ -39,10 +43,15 @@ public class Enemy1 : MonoBehaviour
 
     private Rigidbody2D rb;
     private Animator animator;
+    private AudioSource damageAudioSource;
     private float baseScaleX;
     private SpriteRenderer[] spriteRenderers;
     private float attackUnlockTime;
     private bool danioAplicadoEnAtaque;
+
+#if UNITY_EDITOR
+    private const string DamageClipPath = "Assets/Sound/SFX_hit&damageEsqueleto13.wav";
+#endif
 
     /***************** EVENTOS DE ANIMACION ******************/
     // Evento de animacion: inicio del golpe
@@ -65,12 +74,57 @@ public class Enemy1 : MonoBehaviour
     public void RecibirDanio(float danio)
     {
         vida -= danio;
+        PlayDamageSound();
 
         if (animator != null)
         {
             animator.SetTrigger("hurt");
             return;
         }
+    }
+
+    private void EnsureDamageAudioSource()
+    {
+        if (damageAudioSource == null)
+        {
+            damageAudioSource = GetComponent<AudioSource>();
+        }
+
+        if (damageAudioSource == null)
+        {
+            damageAudioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        damageAudioSource.playOnAwake = false;
+        damageAudioSource.loop = false;
+        damageAudioSource.spatialBlend = 0f;
+        damageAudioSource.volume = 1f;
+    }
+
+    private void AutoAssignDamageClip()
+    {
+#if UNITY_EDITOR
+        if (damageClip == null)
+        {
+            damageClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DamageClipPath);
+        }
+#endif
+    }
+
+    private void PlayDamageSound()
+    {
+        if (damageAudioSource == null || damageClip == null)
+        {
+            return;
+        }
+
+        damageAudioSource.PlayOneShot(damageClip);
+    }
+
+    private void Awake()
+    {
+        EnsureDamageAudioSource();
+        AutoAssignDamageClip();
     }
 
     private void Start()
