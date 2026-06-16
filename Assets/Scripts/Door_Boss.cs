@@ -107,14 +107,14 @@ public class Door_Boss : MonoBehaviour
         }
 
         GUIStyle style = new GUIStyle(GUI.skin.label)
-    string messageToShow = isOpen ? interactionMessageOpen : (Time.time < missingKeyMessageEndTime ? missingKeyMessage : interactionMessage);
+        {
             alignment = TextAnchor.MiddleCenter,
             fontSize = 26,
             fontStyle = FontStyle.Bold,
             normal = { textColor = new Color(1f, 0.2f, 0.2f, 1f) }
         };
 
-        string messageToShow = Time.time < missingKeyMessageEndTime ? missingKeyMessage : interactionMessage;
+        string messageToShow = isOpen ? interactionMessageOpen : (Time.time < missingKeyMessageEndTime ? missingKeyMessage : interactionMessage);
 
         float labelWidth = 320f;
         float labelHeight = 42f;

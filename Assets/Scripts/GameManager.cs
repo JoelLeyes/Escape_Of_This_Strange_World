@@ -56,7 +56,6 @@ public sealed class GameManager : MonoBehaviour
 
     public void GameOver()
     {
-        Player.ResetPersistentInstance();
         LoadScene(gameOverSceneName);
     }
 
@@ -65,10 +64,16 @@ public sealed class GameManager : MonoBehaviour
         Debug.Log($"ContinueFromCheckpoint llamado. Has checkpoint: {hasCheckpoint}, posición: {checkpointPosition}");
         if (hasCheckpoint && !string.IsNullOrWhiteSpace(checkpointSceneName))
         {
+            if (Player.Instance != null)
+            {
+                Player.Instance.ReviveFromCheckpoint();
+            }
+
             LoadScene(checkpointSceneName);
             return;
         }
 
+        Player.ResetPersistentInstance();
         LoadScene(gameplaySceneName);
     }
 
@@ -155,12 +160,20 @@ public sealed class GameManager : MonoBehaviour
 
         Debug.Log($"Aplicando checkpoint en posición {checkpointPosition}");
         Vector3 positionWithZero = new Vector3(checkpointPosition.x, checkpointPosition.y, 0f);
-        target.position = positionWithZero;
 
         if (rigidbody2D != null)
         {
+            rigidbody2D.position = positionWithZero;
             rigidbody2D.linearVelocity = Vector2.zero;
             rigidbody2D.angularVelocity = 0f;
+        }
+
+        target.position = positionWithZero;
+        Physics2D.SyncTransforms();
+
+        if (rigidbody2D != null)
+        {
+            rigidbody2D.WakeUp();
         }
     }
 

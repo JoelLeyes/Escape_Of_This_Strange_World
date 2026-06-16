@@ -7,13 +7,27 @@ public class CameraMove : MonoBehaviour
     public float haciaDelante = 0.8f;
     public float smoothing = 5f;
     [SerializeField] private string targetTag = "Player";
+
+    private void EnsureTarget()
+    {
+        if (Target != null)
+        {
+            return;
+        }
+
+        if (Player.Instance != null)
+        {
+            Target = Player.Instance.gameObject;
+            return;
+        }
+
+        Target = GameObject.FindWithTag(targetTag);
+    }
+
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
-        if (Target == null)
-        {
-            Target = GameObject.FindWithTag(targetTag);
-        }
+        EnsureTarget();
 
         if (smoothing <= 0f)
         {
@@ -24,6 +38,8 @@ public class CameraMove : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        EnsureTarget();
+
         if (Target == null)
         {
             return;

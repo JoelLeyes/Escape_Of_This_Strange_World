@@ -74,6 +74,7 @@ public class Player : MonoBehaviour
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
     private Collider2D PlayerCollider;
+    private BoxCollider2D bodyCollider;
     private Animator Animator;
     private AudioSource audioSource;
     private AudioSource runningAudioSource;
@@ -90,10 +91,16 @@ public class Player : MonoBehaviour
     private AttackType currentAttackType = AttackType.None;
 
     private bool canMove = true;
+    private bool waitingForCheckpointLanding;
     private int corazonesActuales;
     private float nextDamageTime;
     private bool nivelPerdido;
     private const float danoPorCorazon = 20f;
+    private Vector2 defaultBodyColliderSize;
+    private Vector2 defaultBodyColliderOffset;
+    private bool defaultBodyColliderEnabled;
+    private bool defaultBodyColliderIsTrigger;
+    private bool bodyColliderDefaultsCached;
 
     // Items
     private bool tieneArco;
@@ -118,15 +125,7 @@ public class Player : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
-            Instance.transform.position = transform.position;
-            Instance.transform.rotation = transform.rotation;
-
-            if (Instance.Rigidbody2D != null)
-            {
-                Instance.Rigidbody2D.linearVelocity = Vector2.zero;
-                Instance.Rigidbody2D.angularVelocity = 0f;
-            }
-
+            SyncColliderSettingsToPersistentInstance();
             Destroy(gameObject);
             return;
         }
@@ -196,11 +195,21 @@ public class Player : MonoBehaviour
 
     public void AjustarColliderMuerte()
     {
+        if (bodyCollider == null)
+        {
+            bodyCollider = GetComponent<BoxCollider2D>();
+        }
+
+        if (bodyCollider == null)
+        {
+            return;
+        }
+
         // Cambia el tamaño del collider
-        GetComponent<BoxCollider2D>().size = new Vector2(0.5f, 0.2f);
+        bodyCollider.size = new Vector2(0.5f, 0.2f);
 
         // Cambia la posición del collider
-        GetComponent<BoxCollider2D>().offset = new Vector2(0f,0f);
+        bodyCollider.offset = Vector2.zero;
     }
 
     private void PickupItem(GameObject itemObj)
@@ -370,6 +379,8 @@ public class Player : MonoBehaviour
     {
         Rigidbody2D = GetComponent<Rigidbody2D>(); //esta funcion mete el componente Rigidbody dentro del script
         PlayerCollider = GetComponent<Collider2D>();
+        bodyCollider = GetComponent<BoxCollider2D>();
+        CacheBodyColliderDefaults();
         Animator = GetComponent<Animator>();
         if (swordHitbox == null)
         {
@@ -399,6 +410,67 @@ public class Player : MonoBehaviour
 
         RefreshVigorDisplay();
         RefreshManaDisplay();
+    }
+
+    private void CacheBodyColliderDefaults()
+    {
+        if (bodyCollider == null || bodyColliderDefaultsCached)
+        {
+            return;
+        }
+
+        defaultBodyColliderSize = bodyCollider.size;
+        defaultBodyColliderOffset = bodyCollider.offset;
+        defaultBodyColliderEnabled = bodyCollider.enabled;
+        defaultBodyColliderIsTrigger = bodyCollider.isTrigger;
+        bodyColliderDefaultsCached = true;
+    }
+
+    private void RestoreBodyCollider()
+    {
+        if (bodyCollider == null)
+        {
+            bodyCollider = GetComponent<BoxCollider2D>();
+        }
+
+        if (bodyCollider == null || !bodyColliderDefaultsCached)
+        {
+            return;
+        }
+
+        bodyCollider.size = defaultBodyColliderSize;
+        bodyCollider.offset = defaultBodyColliderOffset;
+        bodyCollider.enabled = defaultBodyColliderEnabled;
+        bodyCollider.isTrigger = defaultBodyColliderIsTrigger;
+    }
+
+    private void SyncColliderSettingsToPersistentInstance()
+    {
+        if (Instance == null || Instance == this)
+        {
+            return;
+        }
+
+        BoxCollider2D sourceCollider = GetComponent<BoxCollider2D>();
+        BoxCollider2D targetCollider = Instance.GetComponent<BoxCollider2D>();
+
+        if (sourceCollider == null || targetCollider == null)
+        {
+            return;
+        }
+
+        targetCollider.size = sourceCollider.size;
+        targetCollider.offset = sourceCollider.offset;
+        targetCollider.enabled = sourceCollider.enabled;
+        targetCollider.isTrigger = sourceCollider.isTrigger;
+        targetCollider.sharedMaterial = sourceCollider.sharedMaterial;
+
+        Instance.bodyCollider = targetCollider;
+        Instance.defaultBodyColliderSize = sourceCollider.size;
+        Instance.defaultBodyColliderOffset = sourceCollider.offset;
+        Instance.defaultBodyColliderEnabled = sourceCollider.enabled;
+        Instance.defaultBodyColliderIsTrigger = sourceCollider.isTrigger;
+        Instance.bodyColliderDefaultsCached = true;
     }
 
     private void EnsureAudioSources()
@@ -559,6 +631,21 @@ public class Player : MonoBehaviour
         else {
             Grounded = false;
             Animator.SetBool("Jumping", true);
+        }
+
+        if (waitingForCheckpointLanding)
+        {
+            Animator.SetBool("Running", false);
+
+            if (!Grounded)
+            {
+                Horizontal = 0f;
+                return;
+            }
+
+            waitingForCheckpointLanding = false;
+            canMove = true;
+            Animator.SetBool("Jumping", false);
         }
 
         if (isDashing)
@@ -911,6 +998,59 @@ public class Player : MonoBehaviour
         RefreshItemDisplay();
         RefreshVigorDisplay();
         RefreshManaDisplay();
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.ApplyCheckpoint(transform, Rigidbody2D);
+        }
+    }
+
+    public void ReviveFromCheckpoint()
+    {
+        nivelPerdido = false;
+        nextDamageTime = 0f;
+        canMove = false;
+        waitingForCheckpointLanding = true;
+        attackActive = false;
+        currentAttackType = AttackType.None;
+        isDashing = false;
+        dashEndTime = 0f;
+        nextDashTime = 0f;
+        Horizontal = 0f;
+        Grounded = false;
+
+        RestoreBodyCollider();
+
+        if (swordHitbox != null)
+        {
+            swordHitbox.EndAttack();
+        }
+
+        SetDashVisual(false);
+        SetDashEnemyCollisionIgnore(false);
+        StopRunningSound();
+
+        if (Rigidbody2D != null)
+        {
+            Rigidbody2D.linearVelocity = Vector2.zero;
+            Rigidbody2D.angularVelocity = 0f;
+        }
+
+        if (Animator != null)
+        {
+            Animator.Rebind();
+            Animator.Update(0f);
+            Animator.SetBool("Running", false);
+            Animator.SetBool("Jumping", false);
+        }
+
+        corazonesActuales = corazonesMaximos;
+        vigorActual = vigorMaximo;
+        manaActual = manaMaximo;
+        ActualizarCorazones();
+        RefreshVigorDisplay();
+        RefreshManaDisplay();
+        RefreshItemDisplay();
     }
 
     public void RecibirDanio(float danio)

@@ -4,6 +4,8 @@ using UnityEngine.SceneManagement;
 [RequireComponent(typeof(Collider2D))]
 public sealed class Checkpoint : MonoBehaviour
 {
+    [SerializeField] private float respawnYOffset = 0.4f;
+
     private void Reset()
     {
         Collider2D collider2D = GetComponent<Collider2D>();
@@ -26,6 +28,18 @@ public sealed class Checkpoint : MonoBehaviour
             return;
         }
 
-        GameManager.Instance.RegisterCheckpoint(transform.position, SceneManager.GetActiveScene().name);
+        Vector3 checkpointPosition = transform.position;
+        Collider2D playerCollider = player.GetComponent<Collider2D>();
+        if (playerCollider != null)
+        {
+            checkpointPosition.y += playerCollider.bounds.extents.y + respawnYOffset;
+        }
+        else
+        {
+            checkpointPosition.y += respawnYOffset;
+        }
+
+        checkpointPosition.z = 0f;
+        GameManager.Instance.RegisterCheckpoint(checkpointPosition, SceneManager.GetActiveScene().name);
     }
 }
