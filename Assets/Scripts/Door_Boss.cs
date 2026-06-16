@@ -11,6 +11,7 @@ public class Door_Boss : MonoBehaviour
     private string openTriggerName = "Open";
     [SerializeField] private float interactionRadius = 1.5f;
     [SerializeField] private string interactionMessage = "Presione E para abrir";
+    [SerializeField] private string interactionMessageOpen = "Presione E para entrar";
     [SerializeField] private string missingKeyMessage = "Necesitas la KeyBoss";
     [SerializeField] private float missingKeyMessageDuration = 1.5f;
     [SerializeField] private float promptYOffset = 1.55f;
@@ -58,13 +59,21 @@ public class Door_Boss : MonoBehaviour
 
     private void Update()
     {
+        playerNearby = IsPlayerNearby();
+
         if (isOpen)
         {
-            playerNearby = false;
+            if (openAnimationEnded && playerNearby && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
+            {
+                Player player = GetNearbyPlayer();
+                if (player != null)
+                {
+                    TryEnterBossScene(player.gameObject);
+                }
+            }
+
             return;
         }
-
-        playerNearby = IsPlayerNearby();
 
         if (playerNearby && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
@@ -81,7 +90,12 @@ public class Door_Boss : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!playerNearby || isOpen || Camera.main == null)
+        if (!playerNearby || Camera.main == null)
+        {
+            return;
+        }
+
+        if (isOpen && !openAnimationEnded)
         {
             return;
         }
@@ -93,7 +107,7 @@ public class Door_Boss : MonoBehaviour
         }
 
         GUIStyle style = new GUIStyle(GUI.skin.label)
-        {
+    string messageToShow = isOpen ? interactionMessageOpen : (Time.time < missingKeyMessageEndTime ? missingKeyMessage : interactionMessage);
             alignment = TextAnchor.MiddleCenter,
             fontSize = 26,
             fontStyle = FontStyle.Bold,
@@ -180,6 +194,24 @@ public class Door_Boss : MonoBehaviour
         }
 
         return false;
+    }
+
+    private Player GetNearbyPlayer()
+    {
+        Collider2D[] colliders = Physics2D.OverlapCircleAll(transform.position, interactionRadius);
+        for (int i = 0; i < colliders.Length; i++)
+        {
+            if (colliders[i] != null)
+            {
+                Player player = colliders[i].GetComponentInParent<Player>();
+                if (player != null)
+                {
+                    return player;
+                }
+            }
+        }
+
+        return null;
     }
 
     private void OpenDoorBoss()
