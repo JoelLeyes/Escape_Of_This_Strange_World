@@ -36,6 +36,7 @@ public class Player : MonoBehaviour
     [SerializeField] private float vigorMaximo = 100f;
     [SerializeField] private float vigorActual = 100f;
     [SerializeField] private float costoEspada = 20f;
+    [SerializeField] private float costoDash = 25f;
     [SerializeField] private float recargaVigorPorSegundo = 15f;
     [SerializeField] private float retrasoRecargaVigor = 0.35f;
     [SerializeField] private Vector2 hudVigorSize = new Vector2(190f, 18f);
@@ -677,6 +678,11 @@ public class Player : MonoBehaviour
 
         if (canMove && !isDashing && IsDashPressed() && Time.time >= nextDashTime)
         {
+            if (!TrySpendVigor(costoDash))
+            {
+                return;
+            }
+
             dashDirection = Horizontal != 0f ? (Horizontal > 0f ? 1 : -1) : (transform.right.x >= 0f ? 1 : -1);
             isDashing = true;
             dashEndTime = Time.time + DashDuration;
