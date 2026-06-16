@@ -11,11 +11,20 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField] private string gameplaySceneName = "Level1";
     [SerializeField] private string gameOverSceneName = "PantallaNivelPerdido";
 
+    [Header("Mensajes")]
+    [SerializeField] private float checkpointMessageDuration = 2f;
+    [SerializeField] private float checkpointMessageTopOffset = 24f;
+
+    private const string CheckpointSavedMessage = "Punto salvado";
+
     private bool isPaused;
     private bool hasCheckpoint;
     private Vector3 checkpointPosition;
     private string checkpointSceneName;
     private readonly HashSet<string> activatedWorldObjectIds = new HashSet<string>();
+    private string activeCheckpointMessage;
+    private float activeCheckpointMessageEndTime;
+    private GUIStyle checkpointMessageStyle;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -46,6 +55,7 @@ public sealed class GameManager : MonoBehaviour
     {
         ClearCheckpoint();
         ClearWorldObjectStates();
+        ClearCheckpointMessage();
         Player.ResetPersistentInstance();
         LoadScene(gameplaySceneName);
     }
@@ -54,12 +64,14 @@ public sealed class GameManager : MonoBehaviour
     {
         ClearCheckpoint();
         ClearWorldObjectStates();
+        ClearCheckpointMessage();
         Player.ResetPersistentInstance();
         LoadScene(menuSceneName);
     }
 
     public void GameOver()
     {
+        ClearCheckpointMessage();
         LoadScene(gameOverSceneName);
     }
 
@@ -136,8 +148,62 @@ public sealed class GameManager : MonoBehaviour
             return;
         }
 
+        ClearCheckpointMessage();
         ResumeGame();
         SceneManager.LoadScene(sceneName);
+    }
+
+    private void OnGUI()
+    {
+        if (string.IsNullOrWhiteSpace(activeCheckpointMessage) || Time.unscaledTime > activeCheckpointMessageEndTime)
+        {
+            return;
+        }
+
+        EnsureCheckpointMessageStyle();
+
+        float width = Mathf.Min(Screen.width - 40f, 320f);
+        float height = 36f;
+        float x = (Screen.width - width) * 0.5f;
+        float y = checkpointMessageTopOffset;
+        Rect rect = new Rect(x, y, width, height);
+
+        Color previousBackgroundColor = GUI.backgroundColor;
+        GUI.backgroundColor = new Color(0f, 0f, 0f, 0.72f);
+        GUI.Box(rect, GUIContent.none);
+        GUI.backgroundColor = previousBackgroundColor;
+
+        GUI.Label(rect, activeCheckpointMessage, checkpointMessageStyle);
+    }
+
+    private void ShowCheckpointSavedMessage()
+    {
+        activeCheckpointMessage = CheckpointSavedMessage;
+        activeCheckpointMessageEndTime = Time.unscaledTime + checkpointMessageDuration;
+    }
+
+    private void ClearCheckpointMessage()
+    {
+        activeCheckpointMessage = string.Empty;
+        activeCheckpointMessageEndTime = 0f;
+    }
+
+    private void EnsureCheckpointMessageStyle()
+    {
+        if (checkpointMessageStyle != null)
+        {
+            return;
+        }
+
+        checkpointMessageStyle = new GUIStyle(GUI.skin.label)
+        {
+            alignment = TextAnchor.MiddleCenter,
+            fontSize = 18,
+            fontStyle = FontStyle.Bold,
+            wordWrap = false,
+            padding = new RectOffset(12, 12, 6, 6)
+        };
+        checkpointMessageStyle.normal.textColor = Color.white;
     }
 
     public void RegisterCheckpoint(Vector3 position, string sceneName)
@@ -146,6 +212,7 @@ public sealed class GameManager : MonoBehaviour
         checkpointSceneName = sceneName;
         hasCheckpoint = true;
         Debug.Log($"Checkpoint guardado en posición {position} en escena {sceneName}");
+        ShowCheckpointSavedMessage();
     }
 
     public bool IsWorldObjectActivated(string worldObjectId)
