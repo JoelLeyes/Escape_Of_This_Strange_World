@@ -26,8 +26,10 @@ public class Chest : MonoBehaviour
     [SerializeField] private List<ChestItem> possibleItems;
 
     private Animator animator;
+    private Collider2D chestCollider;
     private bool isOpen;
     private bool playerNearby;
+    private string persistentId;
 
 #if UNITY_EDITOR
     private const string DoorOpenClipPath = "Assets/Sound/DoorOpen 5.wav";
@@ -36,7 +38,14 @@ public class Chest : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        chestCollider = GetComponent<Collider2D>();
+        persistentId = BuildPersistentId();
         AutoAssignDoorOpenClip();
+    }
+
+    private void Start()
+    {
+        ApplyPersistentState();
     }
 
     private void AutoAssignDoorOpenClip()
@@ -57,6 +66,34 @@ public class Chest : MonoBehaviour
         }
 
         AudioSource.PlayClipAtPoint(doorOpenClip, transform.position, 1f);
+    }
+
+    private string BuildPersistentId()
+    {
+        Vector3 position = transform.position;
+        int x = Mathf.RoundToInt(position.x * 1000f);
+        int y = Mathf.RoundToInt(position.y * 1000f);
+        int z = Mathf.RoundToInt(position.z * 1000f);
+        return $"{gameObject.scene.name}:{gameObject.name}:{x}:{y}:{z}";
+    }
+
+    private void ApplyPersistentState()
+    {
+        if (GameManager.Instance == null || !GameManager.Instance.IsWorldObjectActivated(persistentId))
+        {
+            return;
+        }
+
+        isOpen = true;
+        if (chestCollider != null)
+        {
+            chestCollider.enabled = false;
+        }
+
+        if (animator != null)
+        {
+            animator.SetTrigger(openTriggerName);
+        }
     }
 
     private void Update()
@@ -125,6 +162,16 @@ public class Chest : MonoBehaviour
     {
         if (isOpen) return;
         isOpen = true;
+
+        if (chestCollider != null)
+        {
+            chestCollider.enabled = false;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RegisterWorldObjectActivated(persistentId);
+        }
 
         PlayDoorOpenSound();
 

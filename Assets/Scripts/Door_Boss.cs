@@ -18,11 +18,13 @@ public class Door_Boss : MonoBehaviour
     [SerializeField] private AudioClip doorOpenClip;
 
     private Animator animator;
+    private Collider2D doorCollider;
     private bool isOpen;
     private bool playerNearby;
     private bool openAnimationEnded;
     private bool hasLoadedScene;
     private float missingKeyMessageEndTime;
+    private string persistentId;
 
     [Header("Scene")]
     [SerializeField] private string bossSceneName = "Level1Boss";
@@ -34,7 +36,14 @@ public class Door_Boss : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        doorCollider = GetComponent<Collider2D>();
+        persistentId = BuildPersistentId();
         AutoAssignDoorOpenClip();
+    }
+
+    private void Start()
+    {
+        ApplyPersistentState();
     }
 
     private void AutoAssignDoorOpenClip()
@@ -55,6 +64,36 @@ public class Door_Boss : MonoBehaviour
         }
 
         AudioSource.PlayClipAtPoint(doorOpenClip, transform.position, 1f);
+    }
+
+    private string BuildPersistentId()
+    {
+        Vector3 position = transform.position;
+        int x = Mathf.RoundToInt(position.x * 1000f);
+        int y = Mathf.RoundToInt(position.y * 1000f);
+        int z = Mathf.RoundToInt(position.z * 1000f);
+        return $"{gameObject.scene.name}:{gameObject.name}:{x}:{y}:{z}";
+    }
+
+    private void ApplyPersistentState()
+    {
+        if (GameManager.Instance == null || !GameManager.Instance.IsWorldObjectActivated(persistentId))
+        {
+            return;
+        }
+
+        isOpen = true;
+        openAnimationEnded = true;
+
+        if (doorCollider != null)
+        {
+            doorCollider.enabled = false;
+        }
+
+        if (animator != null)
+        {
+            animator.SetTrigger(openTriggerName);
+        }
     }
 
     private void Update()
@@ -222,6 +261,16 @@ public class Door_Boss : MonoBehaviour
         }
 
         isOpen = true;
+
+        if (doorCollider != null)
+        {
+            doorCollider.enabled = false;
+        }
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.RegisterWorldObjectActivated(persistentId);
+        }
 
         PlayDoorOpenSound();
 

@@ -1,5 +1,6 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using System.Collections.Generic;
 
 public sealed class GameManager : MonoBehaviour
 {
@@ -14,6 +15,7 @@ public sealed class GameManager : MonoBehaviour
     private bool hasCheckpoint;
     private Vector3 checkpointPosition;
     private string checkpointSceneName;
+    private readonly HashSet<string> activatedWorldObjectIds = new HashSet<string>();
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -43,6 +45,7 @@ public sealed class GameManager : MonoBehaviour
     public void StartGame()
     {
         ClearCheckpoint();
+        ClearWorldObjectStates();
         Player.ResetPersistentInstance();
         LoadScene(gameplaySceneName);
     }
@@ -50,6 +53,7 @@ public sealed class GameManager : MonoBehaviour
     public void BackToMenu()
     {
         ClearCheckpoint();
+        ClearWorldObjectStates();
         Player.ResetPersistentInstance();
         LoadScene(menuSceneName);
     }
@@ -144,6 +148,21 @@ public sealed class GameManager : MonoBehaviour
         Debug.Log($"Checkpoint guardado en posición {position} en escena {sceneName}");
     }
 
+    public bool IsWorldObjectActivated(string worldObjectId)
+    {
+        return !string.IsNullOrWhiteSpace(worldObjectId) && activatedWorldObjectIds.Contains(worldObjectId);
+    }
+
+    public void RegisterWorldObjectActivated(string worldObjectId)
+    {
+        if (string.IsNullOrWhiteSpace(worldObjectId))
+        {
+            return;
+        }
+
+        activatedWorldObjectIds.Add(worldObjectId);
+    }
+
     public void ApplyCheckpoint(Transform target, Rigidbody2D rigidbody2D)
     {
         if (!hasCheckpoint || target == null)
@@ -182,5 +201,10 @@ public sealed class GameManager : MonoBehaviour
         hasCheckpoint = false;
         checkpointPosition = default;
         checkpointSceneName = string.Empty;
+    }
+
+    private void ClearWorldObjectStates()
+    {
+        activatedWorldObjectIds.Clear();
     }
 }
