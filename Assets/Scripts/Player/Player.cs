@@ -72,6 +72,8 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioClip swordSwingClip;
     [SerializeField] private AudioClip fireAttackClip;
     [SerializeField] private AudioClip runningClip;
+    [SerializeField] private AudioClip jumpClip;
+    [SerializeField] private AudioClip dashClip;
 
     private Rigidbody2D Rigidbody2D;  //defino una variable global(puedo acceder de cualquier parte del script)
     private Collider2D PlayerCollider;
@@ -120,6 +122,8 @@ public class Player : MonoBehaviour
     private const string SwordSwingClipPath = "Assets/Sound/SFX_swordSwing.wav";
     private const string FireClipPath = "Assets/Sound/SFX_flameShot1.wav";
     private const string RunningClipPath = "Assets/Sound/RuningStone.wav";
+    private const string JumpClipPath = "Assets/Sound/jump.wav";
+    private const string DashClipPath = "Assets/Sound/dash.wav";
 #endif
 
     private void Awake()
@@ -533,6 +537,16 @@ public class Player : MonoBehaviour
         {
             runningClip = AssetDatabase.LoadAssetAtPath<AudioClip>(RunningClipPath);
         }
+
+        if (jumpClip == null)
+        {
+            jumpClip = AssetDatabase.LoadAssetAtPath<AudioClip>(JumpClipPath);
+        }
+
+        if (dashClip == null)
+        {
+            dashClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DashClipPath);
+        }
 #endif
     }
 
@@ -554,6 +568,26 @@ public class Player : MonoBehaviour
         }
 
         audioSource.PlayOneShot(fireAttackClip);
+    }
+
+    private void PlayJumpSound()
+    {
+        if (audioSource == null || jumpClip == null)
+        {
+            return;
+        }
+
+        audioSource.PlayOneShot(jumpClip);
+    }
+
+    private void PlayDashSound()
+    {
+        if (audioSource == null || dashClip == null)
+        {
+            return;
+        }
+
+        audioSource.PlayOneShot(dashClip);
     }
 
     private void UpdateRunningSound()
@@ -689,6 +723,7 @@ public class Player : MonoBehaviour
             nextDashTime = Time.time + DashCooldown;
             SetDashVisual(true);
             SetDashEnemyCollisionIgnore(true);
+            PlayDashSound();
         }
 
         //SALTO
@@ -898,6 +933,7 @@ public class Player : MonoBehaviour
     private void Jump()
     {
         Rigidbody2D.AddForce(Vector2.up * JumpForce);
+        PlayJumpSound();
     }
 
     private void StopDash()

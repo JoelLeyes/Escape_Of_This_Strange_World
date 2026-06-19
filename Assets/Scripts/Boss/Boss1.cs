@@ -22,6 +22,7 @@ public class Boss1 : MonoBehaviour
     [SerializeField] private int healthBarSortingOrder = 10;
     [SerializeField] private string healthBarSortingLayer = "Default";
     [SerializeField] private AudioClip damageClip;
+    [SerializeField] private AudioClip levitatingClip;
 
     [Header("Movimiento")]
     [SerializeField] private Transform[] points;
@@ -62,12 +63,14 @@ public class Boss1 : MonoBehaviour
 
 #if UNITY_EDITOR
     private const string DamageClipPath = "Assets/Sound/SFX_hit&damageEsqueleto13.wav";
+    private const string LevitatingClipPath = "Assets/Sound/levitando.wav";
 #endif
 
     private void Awake()
     {
         EnsureDamageAudioSource();
         AutoAssignDamageClip();
+        AutoAssignLevitatingClip();
     }
 
     private void Start()
@@ -108,6 +111,16 @@ public class Boss1 : MonoBehaviour
 #endif
     }
 
+    private void AutoAssignLevitatingClip()
+    {
+#if UNITY_EDITOR
+        if (levitatingClip == null)
+        {
+            levitatingClip = AssetDatabase.LoadAssetAtPath<AudioClip>(LevitatingClipPath);
+        }
+#endif
+    }
+
     private void PlayDamageSound()
     {
         if (damageAudioSource == null || damageClip == null)
@@ -116,6 +129,39 @@ public class Boss1 : MonoBehaviour
         }
 
         damageAudioSource.PlayOneShot(damageClip);
+    }
+
+    private void PlayMovementSound()
+    {
+        if (damageAudioSource == null || levitatingClip == null)
+        {
+            return;
+        }
+
+        if (!damageAudioSource.isPlaying || damageAudioSource.clip != levitatingClip)
+        {
+            damageAudioSource.clip = levitatingClip;
+            damageAudioSource.loop = true;
+            damageAudioSource.Play();
+        }
+    }
+
+    private void StopMovementSound()
+    {
+        if (damageAudioSource == null || levitatingClip == null)
+        {
+            return;
+        }
+
+        if (damageAudioSource.isPlaying && damageAudioSource.clip == levitatingClip)
+        {
+            damageAudioSource.Stop();
+        }
+
+        if (damageAudioSource.clip == levitatingClip)
+        {
+            damageAudioSource.loop = false;
+        }
     }
 
     private void Update()
@@ -179,6 +225,7 @@ public class Boss1 : MonoBehaviour
 
         isWaiting = true;
         waitEndTime = Time.time + waitAtPointSeconds;
+        StopMovementSound();
         TriggerIdle();
         ScheduleNextMagic();
     }
@@ -268,6 +315,8 @@ public class Boss1 : MonoBehaviour
         {
             animator.SetTrigger("move");
         }
+
+        PlayMovementSound();
     }
 
     private void TriggerMagic()
@@ -294,6 +343,7 @@ public class Boss1 : MonoBehaviour
 
         if (vida <= 0f)
         {
+            StopMovementSound();
             Destroy(gameObject);
             return;
         }
