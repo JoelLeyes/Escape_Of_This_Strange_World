@@ -74,6 +74,32 @@ public class Arrow : MonoBehaviour
             return;
         }
 
+        Boss1 boss = other.GetComponentInParent<Boss1>();
+        if (boss != null)
+        {
+            hasCollided = true;
+
+            if (rb != null)
+            {
+                rb.linearVelocity = Vector2.zero;
+                rb.isKinematic = true;
+                rb.simulated = false;
+            }
+
+            boss.RecibirDanio(damage);
+
+            if (animator != null)
+            {
+                animator.SetTrigger("Target");
+            }
+            else
+            {
+                Destroy(gameObject);
+            }
+
+            return;
+        }
+
         Transform root = other.transform.root;
         bool esEnemyPorTag = other.CompareTag(enemyTag) || (root != null && root.CompareTag(enemyTag));
 
