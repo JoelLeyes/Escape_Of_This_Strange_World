@@ -456,6 +456,20 @@ public class Player : MonoBehaviour
             return;
         }
 
+        Transform targetTransform = Instance.transform;
+        targetTransform.SetPositionAndRotation(transform.position, transform.rotation);
+        targetTransform.localScale = transform.localScale;
+
+        Rigidbody2D sourceRigidbody = GetComponent<Rigidbody2D>();
+        Rigidbody2D targetRigidbody = Instance.GetComponent<Rigidbody2D>();
+
+        if (sourceRigidbody != null && targetRigidbody != null)
+        {
+            targetRigidbody.position = sourceRigidbody.position;
+            targetRigidbody.linearVelocity = sourceRigidbody.linearVelocity;
+            targetRigidbody.angularVelocity = sourceRigidbody.angularVelocity;
+        }
+
         BoxCollider2D sourceCollider = GetComponent<BoxCollider2D>();
         BoxCollider2D targetCollider = Instance.GetComponent<BoxCollider2D>();
 
@@ -476,6 +490,8 @@ public class Player : MonoBehaviour
         Instance.defaultBodyColliderEnabled = sourceCollider.enabled;
         Instance.defaultBodyColliderIsTrigger = sourceCollider.isTrigger;
         Instance.bodyColliderDefaultsCached = true;
+
+        Physics2D.SyncTransforms();
     }
 
     private void EnsureAudioSources()
