@@ -15,6 +15,10 @@ public sealed class GameManager : MonoBehaviour
     [SerializeField] private float checkpointMessageDuration = 2f;
     [SerializeField] private float checkpointMessageTopOffset = 24f;
 
+    [Header("Musica")]
+    [SerializeField] private AudioClip level1MusicClip;
+    [SerializeField] private AudioClip level1BossMusicClip;
+
     private const string CheckpointSavedMessage = "Punto salvado";
 
     private bool isPaused;
@@ -25,6 +29,7 @@ public sealed class GameManager : MonoBehaviour
     private string activeCheckpointMessage;
     private float activeCheckpointMessageEndTime;
     private GUIStyle checkpointMessageStyle;
+    private AudioSource musicAudioSource;
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -48,7 +53,21 @@ public sealed class GameManager : MonoBehaviour
 
         Instance = this;
         DontDestroyOnLoad(gameObject);
+        EnsureMusicAudioSource();
+        AutoAssignMusicClips();
+        SceneManager.sceneLoaded += OnSceneLoaded;
         ResumeGame();
+        UpdateSceneMusic(SceneManager.GetActiveScene().name);
+    }
+
+    private void OnDestroy()
+    {
+        SceneManager.sceneLoaded -= OnSceneLoaded;
+
+        if (musicAudioSource != null)
+        {
+            musicAudioSource.Stop();
+        }
     }
 
     public void StartGame()
@@ -153,6 +172,11 @@ public sealed class GameManager : MonoBehaviour
         SceneManager.LoadScene(sceneName);
     }
 
+    private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+    {
+        UpdateSceneMusic(scene.name);
+    }
+
     private void OnGUI()
     {
         if (string.IsNullOrWhiteSpace(activeCheckpointMessage) || Time.unscaledTime > activeCheckpointMessageEndTime)
@@ -186,6 +210,74 @@ public sealed class GameManager : MonoBehaviour
     {
         activeCheckpointMessage = string.Empty;
         activeCheckpointMessageEndTime = 0f;
+    }
+
+    private void EnsureMusicAudioSource()
+    {
+        if (musicAudioSource == null)
+        {
+            musicAudioSource = GetComponent<AudioSource>();
+        }
+
+        if (musicAudioSource == null)
+        {
+            musicAudioSource = gameObject.AddComponent<AudioSource>();
+        }
+
+        musicAudioSource.playOnAwake = false;
+        musicAudioSource.loop = true;
+        musicAudioSource.spatialBlend = 0f;
+        musicAudioSource.volume = 1f;
+    }
+
+    private void AutoAssignMusicClips()
+    {
+#if UNITY_EDITOR
+        if (level1MusicClip == null)
+        {
+            level1MusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sound/AmbientMusica.mp3");
+        }
+
+        if (level1BossMusicClip == null)
+        {
+            level1BossMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sound/AmbientMusicaBOSS.mp3");
+        }
+#endif
+    }
+
+    private void UpdateSceneMusic(string sceneName)
+    {
+        if (musicAudioSource == null)
+        {
+            EnsureMusicAudioSource();
+        }
+
+        AudioClip targetClip = null;
+
+        if (sceneName == gameplaySceneName)
+        {
+            targetClip = level1MusicClip;
+        }
+        else if (sceneName == "Level1Boss")
+        {
+            targetClip = level1BossMusicClip;
+        }
+
+        if (targetClip == null)
+        {
+            musicAudioSource.Stop();
+            musicAudioSource.clip = null;
+            return;
+        }
+
+        if (musicAudioSource.clip == targetClip && musicAudioSource.isPlaying)
+        {
+            return;
+        }
+
+        musicAudioSource.clip = targetClip;
+        musicAudioSource.loop = true;
+        musicAudioSource.Play();
     }
 
     private void EnsureCheckpointMessageStyle()

@@ -71,6 +71,8 @@ public class Player : MonoBehaviour
     [SerializeField] private PlayerAttackHitbox swordHitbox;
     [SerializeField] private AudioClip swordSwingClip;
     [SerializeField] private AudioClip fireAttackClip;
+    [SerializeField] private AudioClip arrowAttackClip;
+    [SerializeField] private AudioClip damageClip;
     [SerializeField] private AudioClip runningClip;
     [SerializeField] private AudioClip jumpClip;
     [SerializeField] private AudioClip dashClip;
@@ -121,6 +123,8 @@ public class Player : MonoBehaviour
 #if UNITY_EDITOR
     private const string SwordSwingClipPath = "Assets/Sound/SFX_swordSwing.wav";
     private const string FireClipPath = "Assets/Sound/SFX_flameShot1.wav";
+    private const string ArrowClipPath = "Assets/Sound/Arrow.mp3";
+    private const string DamageClipPath = "Assets/Sound/SFX_hit&damage3.wav";
     private const string RunningClipPath = "Assets/Sound/RuningStone.wav";
     private const string JumpClipPath = "Assets/Sound/jump.wav";
     private const string DashClipPath = "Assets/Sound/dash.wav";
@@ -549,6 +553,16 @@ public class Player : MonoBehaviour
             fireAttackClip = AssetDatabase.LoadAssetAtPath<AudioClip>(FireClipPath);
         }
 
+        if (arrowAttackClip == null)
+        {
+            arrowAttackClip = AssetDatabase.LoadAssetAtPath<AudioClip>(ArrowClipPath);
+        }
+
+        if (damageClip == null)
+        {
+            damageClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DamageClipPath);
+        }
+
         if (runningClip == null)
         {
             runningClip = AssetDatabase.LoadAssetAtPath<AudioClip>(RunningClipPath);
@@ -584,6 +598,26 @@ public class Player : MonoBehaviour
         }
 
         audioSource.PlayOneShot(fireAttackClip);
+    }
+
+    private void PlayArrowAttackSound()
+    {
+        if (audioSource == null || arrowAttackClip == null)
+        {
+            return;
+        }
+
+        audioSource.PlayOneShot(arrowAttackClip);
+    }
+
+    private void PlayDamageSound()
+    {
+        if (audioSource == null || damageClip == null)
+        {
+            return;
+        }
+
+        audioSource.PlayOneShot(damageClip);
     }
 
     private void PlayJumpSound()
@@ -873,6 +907,7 @@ public class Player : MonoBehaviour
             int direction = transform.right.x >= 0f ? 1 : -1;
             Arrow arrow = Instantiate(arrowPrefab, transform.position, Quaternion.identity);
             arrow.Initialize(direction);
+            PlayArrowAttackSound();
 
             cantidadFlechas = Mathf.Max(0, cantidadFlechas - 1);
             if (itemDisplay != null)
@@ -1216,6 +1251,7 @@ public class Player : MonoBehaviour
         int corazonesAPerdidos = Mathf.CeilToInt(danio / danoPorCorazon);
         corazonesActuales -= corazonesAPerdidos;
         nextDamageTime = Time.time + tiempoInvulnerable;
+        PlayDamageSound();
         ActualizarCorazones();
 
         if (corazonesActuales > 0 && Animator != null)

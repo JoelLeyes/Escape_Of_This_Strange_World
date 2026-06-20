@@ -22,6 +22,7 @@ public class Boss1 : MonoBehaviour
     [SerializeField] private int healthBarSortingOrder = 10;
     [SerializeField] private string healthBarSortingLayer = "Default";
     [SerializeField] private AudioClip damageClip;
+    [SerializeField] private AudioClip fireAttackClip;
     [SerializeField] private AudioClip levitatingClip;
 
     [Header("Movimiento")]
@@ -63,6 +64,7 @@ public class Boss1 : MonoBehaviour
 
 #if UNITY_EDITOR
     private const string DamageClipPath = "Assets/Sound/SFX_hit&damageEsqueleto13.wav";
+    private const string FireAttackClipPath = "Assets/Sound/SFX_flameShot1.wav";
     private const string LevitatingClipPath = "Assets/Sound/levitando.wav";
 #endif
 
@@ -70,6 +72,7 @@ public class Boss1 : MonoBehaviour
     {
         EnsureDamageAudioSource();
         AutoAssignDamageClip();
+        AutoAssignFireAttackClip();
         AutoAssignLevitatingClip();
     }
 
@@ -111,6 +114,16 @@ public class Boss1 : MonoBehaviour
 #endif
     }
 
+    private void AutoAssignFireAttackClip()
+    {
+#if UNITY_EDITOR
+        if (fireAttackClip == null)
+        {
+            fireAttackClip = AssetDatabase.LoadAssetAtPath<AudioClip>(FireAttackClipPath);
+        }
+#endif
+    }
+
     private void AutoAssignLevitatingClip()
     {
 #if UNITY_EDITOR
@@ -129,6 +142,16 @@ public class Boss1 : MonoBehaviour
         }
 
         damageAudioSource.PlayOneShot(damageClip);
+    }
+
+    private void PlayFireAttackSound()
+    {
+        if (damageAudioSource == null || fireAttackClip == null)
+        {
+            return;
+        }
+
+        damageAudioSource.PlayOneShot(fireAttackClip);
     }
 
     private void PlayMovementSound()
@@ -462,6 +485,7 @@ public class Boss1 : MonoBehaviour
 
     public void Boss_Magic5_AnimationEnd()
     {
+        PlayFireAttackSound();
         SpawnFireBossAtAngle(fireBossAngle0);
         SpawnFireBossAtAngle(fireBossAngle1);
         SpawnFireBossAtAngle(fireBossAngle2);
