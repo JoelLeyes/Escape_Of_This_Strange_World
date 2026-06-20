@@ -1005,6 +1005,94 @@ public class Player : MonoBehaviour
                 }
             }
 
+            Enemy2[] enemies2 = FindObjectsByType<Enemy2>(FindObjectsSortMode.None);
+            for (int i = 0; i < enemies2.Length; i++)
+            {
+                if (enemies2[i] == null)
+                {
+                    continue;
+                }
+
+                Collider2D[] enemyColliders = enemies2[i].GetComponentsInChildren<Collider2D>(true);
+                for (int j = 0; j < enemyColliders.Length; j++)
+                {
+                    Collider2D enemyCollider = enemyColliders[j];
+                    if (enemyCollider == null || enemyCollider == PlayerCollider)
+                    {
+                        continue;
+                    }
+
+                    Physics2D.IgnoreCollision(PlayerCollider, enemyCollider, true);
+                    ignoredEnemyColliders.Add(enemyCollider);
+                }
+            }
+
+            ArmSkeleton[] armSkeletons = FindObjectsByType<ArmSkeleton>(FindObjectsSortMode.None);
+            for (int i = 0; i < armSkeletons.Length; i++)
+            {
+                if (armSkeletons[i] == null)
+                {
+                    continue;
+                }
+
+                Collider2D[] armColliders = armSkeletons[i].GetComponentsInChildren<Collider2D>(true);
+                for (int j = 0; j < armColliders.Length; j++)
+                {
+                    Collider2D armCollider = armColliders[j];
+                    if (armCollider == null || armCollider == PlayerCollider)
+                    {
+                        continue;
+                    }
+
+                    Physics2D.IgnoreCollision(PlayerCollider, armCollider, true);
+                    ignoredEnemyColliders.Add(armCollider);
+                }
+            }
+
+            FireBossProjectile[] fireBossProjectiles = FindObjectsByType<FireBossProjectile>(FindObjectsSortMode.None);
+            for (int i = 0; i < fireBossProjectiles.Length; i++)
+            {
+                if (fireBossProjectiles[i] == null)
+                {
+                    continue;
+                }
+
+                Collider2D[] projectileColliders = fireBossProjectiles[i].GetComponentsInChildren<Collider2D>(true);
+                for (int j = 0; j < projectileColliders.Length; j++)
+                {
+                    Collider2D projectileCollider = projectileColliders[j];
+                    if (projectileCollider == null || projectileCollider == PlayerCollider)
+                    {
+                        continue;
+                    }
+
+                    Physics2D.IgnoreCollision(PlayerCollider, projectileCollider, true);
+                    ignoredEnemyColliders.Add(projectileCollider);
+                }
+            }
+
+            Boss1[] boss1s = FindObjectsByType<Boss1>(FindObjectsSortMode.None);
+            for (int i = 0; i < boss1s.Length; i++)
+            {
+                if (boss1s[i] == null)
+                {
+                    continue;
+                }
+
+                Collider2D[] bossColliders = boss1s[i].GetComponentsInChildren<Collider2D>(true);
+                for (int j = 0; j < bossColliders.Length; j++)
+                {
+                    Collider2D bossCollider = bossColliders[j];
+                    if (bossCollider == null || bossCollider == PlayerCollider)
+                    {
+                        continue;
+                    }
+
+                    Physics2D.IgnoreCollision(PlayerCollider, bossCollider, true);
+                    ignoredEnemyColliders.Add(bossCollider);
+                }
+            }
+
             return;
         }
 
