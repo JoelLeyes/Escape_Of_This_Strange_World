@@ -25,6 +25,7 @@ public class Enemy1 : MonoBehaviour
     public float vida = 100f;
     public GameObject hitbox;
     [SerializeField] private float attackLockDuration = 1.0f;
+    [SerializeField] private float attackCooldown = 1.25f;
     [SerializeField] private float attackDistance = 1.2f;
     [SerializeField] private float attackDistanceY = 1.5f;
     [SerializeField] private float stopDistance = 0.20f;
@@ -47,6 +48,7 @@ public class Enemy1 : MonoBehaviour
     private float baseScaleX;
     private SpriteRenderer[] spriteRenderers;
     private float attackUnlockTime;
+    private float nextAttackTime;
     private bool danioAplicadoEnAtaque;
 
 #if UNITY_EDITOR
@@ -189,6 +191,11 @@ public class Enemy1 : MonoBehaviour
             EndAttackState();
         }
 
+        if (!puedeAtacar && Time.time >= nextAttackTime)
+        {
+            puedeAtacar = true;
+        }
+
         // Si no hay objetivo o esta bloqueado por animacion de ataque, no procesa IA
         if (objetivo == null || !canMove)
         {
@@ -211,8 +218,8 @@ public class Enemy1 : MonoBehaviour
 
         /********************************* GOLPEAR JUGADOR **********************************/
         if (puedeAtacar
-            && distanciaAbsoluta <= attackDistance
-            && distanciaAbsolutaEjeY <= attackDistanceY)
+            && distanciaAbsoluta <= attackDistance + 0.35f
+            && distanciaAbsolutaEjeY <= attackDistanceY + 0.6f)
         {
             // Frena antes de iniciar el golpe para evitar deslizamientos
             rb.linearVelocity *= 0.95f;
@@ -236,6 +243,7 @@ public class Enemy1 : MonoBehaviour
 
             AplicarDanioAtaque();
             puedeAtacar = false;
+            nextAttackTime = Time.time + attackCooldown;
             return;
         }
         /************************************************************************************/
@@ -388,9 +396,10 @@ public class Enemy1 : MonoBehaviour
         }
 
         canMove = true;
-        puedeAtacar = true;
+        puedeAtacar = false;
         danioAplicadoEnAtaque = false;
         attackUnlockTime = 0f;
+        nextAttackTime = Time.time + attackCooldown;
 
         if (animator != null)
         {
