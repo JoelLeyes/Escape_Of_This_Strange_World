@@ -114,7 +114,7 @@ public class Chest : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!playerNearby || isOpen || Camera.main == null)
+        if (!playerNearby || isOpen || Camera.main == null || (GameManager.Instance != null && GameManager.Instance.IsGamePaused()))
         {
             return;
         }

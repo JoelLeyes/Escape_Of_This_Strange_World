@@ -415,9 +415,14 @@ public class Player : MonoBehaviour
         vigorActual = Mathf.Clamp(vigorActual, 0f, vigorMaximo);
         manaActual = Mathf.Clamp(manaActual, 0f, manaMaximo);
         ActualizarCorazones();
-        EnsureHeartDisplay();
-        EnsureVigorDisplay();
-        EnsureManaDisplay();
+        
+        string currentScene = SceneManager.GetActiveScene().name;
+        if (GameManager.Instance == null || !GameManager.Instance.IsMenuOrGameOverScene(currentScene))
+        {
+            EnsureHeartDisplay();
+            EnsureVigorDisplay();
+            EnsureManaDisplay();
+        }
 
         if (GameManager.Instance != null)
         {
@@ -1175,7 +1180,7 @@ public class Player : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        if (this == null)
+        if (this == null || mode == LoadSceneMode.Additive)
         {
             return;
         }
@@ -1184,6 +1189,12 @@ public class Player : MonoBehaviour
         itemDisplay = null;
         vigorDisplay = null;
         manaDisplay = null;
+
+        if (GameManager.Instance != null && GameManager.Instance.IsMenuOrGameOverScene(scene.name))
+        {
+            return;
+        }
+
         EnsureHeartDisplay();
         EnsureItemDisplay();
         EnsureVigorDisplay();

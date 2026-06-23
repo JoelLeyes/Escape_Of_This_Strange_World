@@ -106,7 +106,7 @@ public class Door : MonoBehaviour
 
     private void OnGUI()
     {
-        if (!playerNearby || Camera.main == null)
+        if (!playerNearby || Camera.main == null || (GameManager.Instance != null && GameManager.Instance.IsGamePaused()))
         {
             return;
         }

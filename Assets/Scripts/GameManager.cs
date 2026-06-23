@@ -1,6 +1,8 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
+using UnityEngine.InputSystem;
+
 
 public sealed class GameManager : MonoBehaviour
 {
@@ -30,6 +32,8 @@ public sealed class GameManager : MonoBehaviour
     private float activeCheckpointMessageEndTime;
     private GUIStyle checkpointMessageStyle;
     private AudioSource musicAudioSource;
+    private string lastGameplaySceneName;
+
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
     private static void Bootstrap()
@@ -70,13 +74,70 @@ public sealed class GameManager : MonoBehaviour
         }
     }
 
+    private void Update()
+    {
+        if (Keyboard.current == null)
+        {
+            return;
+        }
+
+        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+        {
+            string currentSceneName = SceneManager.GetActiveScene().name;
+            if (currentSceneName != menuSceneName && currentSceneName != gameOverSceneName && currentSceneName != gameplaySceneName)
+            {
+                if (isPaused)
+                {
+                    Scene menuScene = SceneManager.GetSceneByName(menuSceneName);
+                    if (menuScene.isLoaded)
+                    {
+                        SceneManager.UnloadSceneAsync(menuSceneName);
+                        ResumeGame();
+                    }
+                }
+                else
+                {
+                    Debug.Log($"Tecla ESC presionada en {currentSceneName}. Volviendo al menú de pausa.");
+                    PauseToMenu();
+                }
+            }
+        }
+    }
+
+    public void PlayFromMenu()
+    {
+        Scene menuScene = SceneManager.GetSceneByName(menuSceneName);
+        if (IsGamePaused() && menuScene.isLoaded && SceneManager.GetActiveScene().name != menuSceneName)
+        {
+            SceneManager.UnloadSceneAsync(menuSceneName);
+            ResumeGame();
+        }
+        else if (!string.IsNullOrEmpty(lastGameplaySceneName))
+        {
+            ContinueFromCheckpoint();
+        }
+        else
+        {
+            StartGame();
+        }
+    }
+
     public void StartGame()
     {
         ClearCheckpoint();
         ClearWorldObjectStates();
         ClearCheckpointMessage();
         Player.ResetPersistentInstance();
+        lastGameplaySceneName = null;
         LoadScene(gameplaySceneName);
+    }
+
+    public void PauseToMenu()
+    {
+        if (isPaused) return;
+
+        PauseGame();
+        SceneManager.LoadScene(menuSceneName, LoadSceneMode.Additive);
     }
 
     public void BackToMenu()
@@ -85,6 +146,7 @@ public sealed class GameManager : MonoBehaviour
         ClearWorldObjectStates();
         ClearCheckpointMessage();
         Player.ResetPersistentInstance();
+        lastGameplaySceneName = null;
         LoadScene(menuSceneName);
     }
 
@@ -96,7 +158,6 @@ public sealed class GameManager : MonoBehaviour
 
     public void ContinueFromCheckpoint()
     {
-        Debug.Log($"ContinueFromCheckpoint llamado. Has checkpoint: {hasCheckpoint}, posición: {checkpointPosition}");
         if (hasCheckpoint && !string.IsNullOrWhiteSpace(checkpointSceneName))
         {
             if (Player.Instance != null)
@@ -109,7 +170,14 @@ public sealed class GameManager : MonoBehaviour
         }
 
         Player.ResetPersistentInstance();
-        LoadScene(gameplaySceneName);
+        if (!string.IsNullOrEmpty(lastGameplaySceneName))
+        {
+            LoadScene(lastGameplaySceneName);
+        }
+        else
+        {
+            LoadScene(gameplaySceneName);
+        }
     }
 
     public void ReloadCurrentScene()
@@ -126,12 +194,14 @@ public sealed class GameManager : MonoBehaviour
 
         isPaused = true;
         Time.timeScale = 0f;
+        SetHUDVisible(false);
     }
 
     public void ResumeGame()
     {
         isPaused = false;
         Time.timeScale = 1f;
+        SetHUDVisible(true);
     }
 
     public void TogglePause()
@@ -143,6 +213,18 @@ public sealed class GameManager : MonoBehaviour
         }
 
         PauseGame();
+    }
+
+    private void SetHUDVisible(bool visible)
+    {
+        Canvas[] canvases = Resources.FindObjectsOfTypeAll<Canvas>();
+        foreach (Canvas canvas in canvases)
+        {
+            if (canvas.name == "HUDCanvas")
+            {
+                canvas.enabled = visible;
+            }
+        }
     }
 
     public bool IsGamePaused()
@@ -174,12 +256,51 @@ public sealed class GameManager : MonoBehaviour
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        if (mode == LoadSceneMode.Additive)
+        {
+            return;
+        }
+
         UpdateSceneMusic(scene.name);
+        if (scene.name != menuSceneName && scene.name != gameOverSceneName)
+        {
+            lastGameplaySceneName = scene.name;
+        }
+        EnsureMenuManagerInScene();
+    }
+
+    public bool IsMenuOrGameOverScene(string sceneName)
+    {
+        return sceneName == menuSceneName || sceneName == gameOverSceneName;
+    }
+
+    private void EnsureMenuManagerInScene()
+    {
+        GameObject pauseCanvasObj = null;
+        GameObject[] allObjects = Resources.FindObjectsOfTypeAll<GameObject>();
+        foreach (GameObject obj in allObjects)
+        {
+            if (obj.name == "PauseMenuCanvas")
+            {
+                pauseCanvasObj = obj;
+                break;
+            }
+        }
+
+        if (pauseCanvasObj != null)
+        {
+            MenuManager menuManager = pauseCanvasObj.GetComponent<MenuManager>();
+            if (menuManager == null)
+            {
+                menuManager = pauseCanvasObj.AddComponent<MenuManager>();
+                menuManager.MarkAsDynamic();
+            }
+        }
     }
 
     private void OnGUI()
     {
-        if (string.IsNullOrWhiteSpace(activeCheckpointMessage) || Time.unscaledTime > activeCheckpointMessageEndTime)
+        if (string.IsNullOrWhiteSpace(activeCheckpointMessage) || Time.unscaledTime > activeCheckpointMessageEndTime || IsGamePaused())
         {
             return;
         }
@@ -326,7 +447,7 @@ public sealed class GameManager : MonoBehaviour
     {
         if (!hasCheckpoint || target == null)
         {
-            Debug.Log($"ApplyCheckpoint: No se aplicó. HasCheckpoint: {hasCheckpoint}, Target null: {target == null}");
+            Debug.Log($"ApplyCheckpoint: No se aplico. HasCheckpoint: {hasCheckpoint}, Target null: {target == null}");
             return;
         }
 

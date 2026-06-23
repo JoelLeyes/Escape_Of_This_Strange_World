@@ -46,8 +46,20 @@ public class IntroWalk : MonoBehaviour
     private bool stopped = false;
     private bool enteringPortal = false;
 
+    private bool introComenzo = false;
+
+    public GameObject textoInicio;
+
+    public GameObject textoInicio2;
+    
+    public GameObject textoInicio3;
     void Update()
     {
+        if (!introComenzo)
+        {
+            return;
+        }
+
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             SaltarIntro();
@@ -176,6 +188,97 @@ public class IntroWalk : MonoBehaviour
         }
     }
 
+    IEnumerator InicioIntro()
+    {
+        pantallaNegra.SetActive(true);
+
+        // Nos aseguramos de que los textos inicien desactivados para ir mostrándolos secuencialmente
+        if (textoInicio != null) textoInicio.SetActive(false);
+        if (textoInicio2 != null) textoInicio2.SetActive(false);
+        if (textoInicio3 != null) textoInicio3.SetActive(false);
+
+        yield return new WaitForSeconds(0.5f);
+
+        // 1. Mostrar y escribir el primer texto
+        if (textoInicio != null)
+        {
+            textoInicio.SetActive(true);
+            EfectoMaquinaEscribir effect1 = textoInicio.GetComponent<EfectoMaquinaEscribir>();
+            if (effect1 != null)
+            {
+                effect1.IniciarEfecto();
+                while (effect1.EstaEscribiendo())
+                {
+                    yield return null;
+                }
+            }
+            else
+            {
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        // 2. Mostrar y escribir el segundo texto
+        if (textoInicio2 != null)
+        {
+            textoInicio2.SetActive(true);
+            EfectoMaquinaEscribir effect2 = textoInicio2.GetComponent<EfectoMaquinaEscribir>();
+            if (effect2 != null)
+            {
+                effect2.IniciarEfecto();
+                while (effect2.EstaEscribiendo())
+                {
+                    yield return null;
+                }
+            }
+            else
+            {
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+
+        yield return new WaitForSeconds(0.5f);
+
+        // 3. Mostrar y escribir el tercer texto
+        if (textoInicio3 != null)
+        {
+            textoInicio3.SetActive(true);
+            EfectoMaquinaEscribir effect3 = textoInicio3.GetComponent<EfectoMaquinaEscribir>();
+            if (effect3 != null)
+            {
+                effect3.IniciarEfecto();
+                while (effect3.EstaEscribiendo())
+                {
+                    yield return null;
+                }
+            }
+            else
+            {
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+
+        // Tiempo de espera al final para que el jugador termine de leer todo
+        yield return new WaitForSeconds(2.0f);
+
+        if (pantallaNegra != null) pantallaNegra.SetActive(false);
+
+        if (textoInicio != null) textoInicio.SetActive(false);
+        if (textoInicio2 != null) textoInicio2.SetActive(false);
+        if (textoInicio3 != null) textoInicio3.SetActive(false);
+
+        yield return new WaitForSeconds(0.20f);
+
+        introComenzo = true;
+    }
+
+        void Start()
+    {
+        StartCoroutine(InicioIntro());
+    }
+
     // Controla si mira a la izquierda o derecha basándose en el siguiente destino
     void ActualizarDireccionDeMirada(Vector3 destino)
     {
@@ -241,7 +344,7 @@ public class IntroWalk : MonoBehaviour
     void SaltarIntro()
     {
         // Si la intro termina en el nivel principal:
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Level0");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Level1");
     }
 
     // Desaparece el portal achicándose
@@ -322,6 +425,6 @@ public class IntroWalk : MonoBehaviour
 
         yield return new WaitForSeconds(1.5f); // 1.5 segundos en negro para el fadeout de audio/ambiente si hiciera falta
 
-        UnityEngine.SceneManagement.SceneManager.LoadScene("Level0");
+        UnityEngine.SceneManagement.SceneManager.LoadScene("Level1");
     }
 }

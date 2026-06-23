@@ -1,21 +1,46 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 public sealed class MenuManager : MonoBehaviour
 {
     [SerializeField] private CanvasGroup pauseMenuCanvasGroup;
 
-    private void Update()
-    {
-        if (Keyboard.current == null)
-        {
-            return;
-        }
+    private bool wasAddedDynamically;
 
-        if (Keyboard.current.escapeKey.wasPressedThisFrame)
+    public void MarkAsDynamic()
+    {
+        wasAddedDynamically = true;
+    }
+
+    private void Awake()
+    {
+        if (pauseMenuCanvasGroup == null)
         {
-            Debug.Log($"ESC detectado. GameManager.Instance: {GameManager.Instance}, pauseMenuCanvasGroup: {pauseMenuCanvasGroup}");
-            TogglePause();
+            pauseMenuCanvasGroup = GetComponent<CanvasGroup>();
+        }
+        if (pauseMenuCanvasGroup == null)
+        {
+            pauseMenuCanvasGroup = GetComponentInChildren<CanvasGroup>(true);
+        }
+    }
+
+    private void Start()
+    {
+        if (wasAddedDynamically)
+        {
+            Button[] buttons = GetComponentsInChildren<Button>(true);
+            foreach (var button in buttons)
+            {
+                if (button.gameObject.name == "PlayButton")
+                {
+                    button.onClick.AddListener(ResumeGame);
+                }
+                else if (button.gameObject.name == "QuitButton")
+                {
+                    button.onClick.AddListener(BackToMenu);
+                }
+            }
         }
     }
 
@@ -27,7 +52,7 @@ public sealed class MenuManager : MonoBehaviour
             return;
         }
 
-        GameManager.Instance.StartGame();
+        GameManager.Instance.PlayFromMenu();
     }
 
     public void BackToMenu()
@@ -57,6 +82,8 @@ public sealed class MenuManager : MonoBehaviour
             pauseMenuCanvasGroup.blocksRaycasts = true;
             pauseMenuCanvasGroup.interactable = true;
         }
+
+        SetHUDVisible(false);
     }
 
     public void ResumeGame()
@@ -75,6 +102,8 @@ public sealed class MenuManager : MonoBehaviour
             pauseMenuCanvasGroup.blocksRaycasts = false;
             pauseMenuCanvasGroup.interactable = false;
         }
+
+        SetHUDVisible(true);
     }
 
     public void ContinueGame()
@@ -106,6 +135,20 @@ public sealed class MenuManager : MonoBehaviour
             pauseMenuCanvasGroup.alpha = willBePaused ? 1f : 0f;
             pauseMenuCanvasGroup.blocksRaycasts = willBePaused;
             pauseMenuCanvasGroup.interactable = willBePaused;
+        }
+
+        SetHUDVisible(!willBePaused);
+    }
+
+    private void SetHUDVisible(bool visible)
+    {
+        Canvas[] canvases = Resources.FindObjectsOfTypeAll<Canvas>();
+        foreach (Canvas canvas in canvases)
+        {
+            if (canvas.name == "HUDCanvas")
+            {
+                canvas.enabled = visible;
+            }
         }
     }
 
