@@ -8,7 +8,7 @@ public sealed class GameManager : MonoBehaviour
 
     [Header("Escenas")]
     [SerializeField] private string menuSceneName = "Menú";
-    [SerializeField] private string gameplaySceneName = "Level1";
+    [SerializeField] private string gameplaySceneName = "IntroEscena";
     [SerializeField] private string gameOverSceneName = "PantallaNivelPerdido";
 
     [Header("Mensajes")]

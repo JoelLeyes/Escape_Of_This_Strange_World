@@ -7,6 +7,11 @@ public sealed class MenuManager : MonoBehaviour
 
     private void Update()
     {
+        if (Keyboard.current == null)
+        {
+            return;
+        }
+
         if (Keyboard.current.escapeKey.wasPressedThisFrame)
         {
             Debug.Log($"ESC detectado. GameManager.Instance: {GameManager.Instance}, pauseMenuCanvasGroup: {pauseMenuCanvasGroup}");

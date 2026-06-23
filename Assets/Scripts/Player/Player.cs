@@ -134,6 +134,18 @@ public class Player : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            // Teletransportar la instancia persistente a la posición de inicio de este nuevo nivel
+            Instance.transform.position = transform.position;
+
+            Rigidbody2D persistentRb = Instance.GetComponent<Rigidbody2D>();
+            if (persistentRb != null)
+            {
+                persistentRb.position = transform.position;
+                persistentRb.linearVelocity = Vector2.zero;
+                persistentRb.angularVelocity = 0f;
+            }
+            Physics2D.SyncTransforms();
+
             SyncColliderSettingsToPersistentInstance();
             Destroy(gameObject);
             return;
