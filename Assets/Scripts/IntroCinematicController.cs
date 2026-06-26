@@ -1,8 +1,8 @@
 using UnityEngine;
-using UnityEngine.InputSystem;
+//using UnityEngine.InputSystem;
 using System.Collections;
 
-public class IntroWalk : MonoBehaviour
+public class IntroCinematicController : MonoBehaviour
 {
     public float speed = 1f;
     public float stopPositionX = 1f;
