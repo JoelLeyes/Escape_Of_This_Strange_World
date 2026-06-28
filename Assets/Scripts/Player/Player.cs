@@ -110,6 +110,7 @@ public class Player : MonoBehaviour
     // Items
     private bool tieneArco;
     private bool tieneKeyBoss;
+    private readonly HashSet<int> collectedKeyIds = new HashSet<int>();
     private int cantidadFlechas;
     private Sprite bowSprite;
     private Sprite arrowSprite;
@@ -212,6 +213,13 @@ public class Player : MonoBehaviour
             PickupItem(other);
             return;
         }
+
+        Key key = other.GetComponentInParent<Key>();
+        if (key != null)
+        {
+            PickupKey(other);
+            return;
+        }
     }
 
     public void AjustarColliderMuerte()
@@ -292,6 +300,28 @@ public class Player : MonoBehaviour
         }
     }
 
+    private void PickupKey(GameObject keyObj)
+    {
+        if (keyObj == null)
+        {
+            return;
+        }
+
+        Key key = keyObj.GetComponent<Key>();
+        if (key == null)
+        {
+            key = keyObj.GetComponentInParent<Key>();
+        }
+
+        if (key == null)
+        {
+            return;
+        }
+
+        CollectKey(key.id);
+        Destroy(key.gameObject);
+    }
+
     public void CollectKeyBoss(Sprite sprite)
     {
         tieneKeyBoss = true;
@@ -301,6 +331,21 @@ public class Player : MonoBehaviour
         {
             itemDisplay.SetKeyBossSprite(keyBossSprite);
         }
+    }
+
+    public void CollectKey(int keyId)
+    {
+        if (keyId < 0)
+        {
+            return;
+        }
+
+        collectedKeyIds.Add(keyId);
+    }
+
+    public bool HasKey(int keyId)
+    {
+        return collectedKeyIds.Contains(keyId);
     }
 
     public bool HasKeyBoss()

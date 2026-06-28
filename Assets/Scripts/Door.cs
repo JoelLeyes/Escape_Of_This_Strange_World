@@ -9,9 +9,12 @@ public class Door : MonoBehaviour
 {
     private string openTriggerName = "Open";
     [SerializeField] private string doorId = "Door";
+    public int id = 0;
     [SerializeField] private float interactionRadius = 1.5f;
     [SerializeField] private string interactionMessage = "Presione E para abrir";
     [SerializeField] private string interactionMessageOpen = "Presione E para Entrar";
+    [SerializeField] private string missingKeyMessage = "Necesitas la Llave";
+    [SerializeField] private float missingKeyMessageDuration = 1.5f;
     [SerializeField] private float promptYOffset = 0.6f;
     [SerializeField] private AudioClip doorOpenClip;
 
@@ -19,6 +22,8 @@ public class Door : MonoBehaviour
     private Collider2D doorCollider;
     private bool isOpen;
     private bool playerNearby;
+    private bool playerHasMatchingKey;
+    private float missingKeyMessageEndTime;
     private string persistentId;
 
 #if UNITY_EDITOR
@@ -90,12 +95,20 @@ public class Door : MonoBehaviour
     private void Update()
     {
         playerNearby = IsPlayerNearby();
+        playerHasMatchingKey = playerNearby && HasMatchingKeyNearby();
 
         if (playerNearby && Keyboard.current != null && Keyboard.current.eKey.wasPressedThisFrame)
         {
             if (!isOpen)
             {
-                OpenDoor();
+                if (playerHasMatchingKey)
+                {
+                    OpenDoor();
+                }
+                else
+                {
+                    ShowMissingKeyMessage();
+                }
             }
             else
             {
@@ -133,7 +146,15 @@ public class Door : MonoBehaviour
             labelWidth,
             labelHeight);
 
-        string messageToShow = isOpen ? interactionMessageOpen : interactionMessage;
+        string messageToShow = isOpen
+            ? interactionMessageOpen
+            : (Time.time < missingKeyMessageEndTime || !playerHasMatchingKey ? missingKeyMessage : interactionMessage);
+
+        if (!isOpen && (Time.time < missingKeyMessageEndTime || !playerHasMatchingKey))
+        {
+            style.normal.textColor = new Color(1f, 0.3f, 0.3f, 1f);
+        }
+
         GUI.Label(labelRect, messageToShow, style);
     }
 
@@ -158,6 +179,12 @@ public class Door : MonoBehaviour
             return;
         }
 
+        Player player = GetNearbyPlayer();
+        if (player == null || !player.HasKey(id))
+        {
+            return;
+        }
+
         isOpen = true;
 
         if (doorCollider != null)
@@ -176,6 +203,17 @@ public class Door : MonoBehaviour
         {
             animator.SetTrigger(openTriggerName);
         }
+    }
+
+    private bool HasMatchingKeyNearby()
+    {
+        Player player = GetNearbyPlayer();
+        return player != null && player.HasKey(id);
+    }
+
+    private void ShowMissingKeyMessage()
+    {
+        missingKeyMessageEndTime = Time.time + Mathf.Max(0.1f, missingKeyMessageDuration);
     }
 
     private void TeleportPlayerToMatchingDoor()

@@ -195,6 +195,7 @@ public class Chest : MonoBehaviour
 
                     Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
                     GameObject spawned = Instantiate(item.prefab, spawnPos, Quaternion.identity);
+                    spawned.SetActive(true);
 
                     Arrow_Item arrowItem = spawned.GetComponentInChildren<Arrow_Item>();
                     if (arrowItem != null)
