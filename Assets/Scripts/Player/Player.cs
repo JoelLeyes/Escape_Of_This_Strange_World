@@ -696,7 +696,13 @@ public class Player : MonoBehaviour
             return;
         }
 
-        AudioSource.PlayClipAtPoint(deathClip, transform.position, 3f);
+        if (audioSource != null)
+        {
+            audioSource.PlayOneShot(deathClip, 3.5f);
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(deathClip, transform.position, 3.5f);
     }
 
     private void PlayJumpSound()
