@@ -73,6 +73,7 @@ public class Player : MonoBehaviour
     [SerializeField] private AudioClip fireAttackClip;
     [SerializeField] private AudioClip arrowAttackClip;
     [SerializeField] private AudioClip damageClip;
+    [SerializeField] private AudioClip deathClip;
     [SerializeField] private AudioClip runningClip;
     [SerializeField] private AudioClip jumpClip;
     [SerializeField] private AudioClip dashClip;
@@ -126,6 +127,7 @@ public class Player : MonoBehaviour
     private const string FireClipPath = "Assets/Sound/SFX_flameShot1.wav";
     private const string ArrowClipPath = "Assets/Sound/Arrow.mp3";
     private const string DamageClipPath = "Assets/Sound/SFX_hit&damage3.wav";
+    private const string DeathClipPath = "Assets/Sound/dialogo_al_morir.mp3";
     private const string RunningClipPath = "Assets/Sound/RuningStone.wav";
     private const string JumpClipPath = "Assets/Sound/jump.wav";
     private const string DashClipPath = "Assets/Sound/dash.wav";
@@ -625,6 +627,11 @@ public class Player : MonoBehaviour
             damageClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DamageClipPath);
         }
 
+        if (deathClip == null)
+        {
+            deathClip = AssetDatabase.LoadAssetAtPath<AudioClip>(DeathClipPath);
+        }
+
         if (runningClip == null)
         {
             runningClip = AssetDatabase.LoadAssetAtPath<AudioClip>(RunningClipPath);
@@ -680,6 +687,16 @@ public class Player : MonoBehaviour
         }
 
         audioSource.PlayOneShot(damageClip);
+    }
+
+    private void PlayDeathSound()
+    {
+        if (deathClip == null)
+        {
+            return;
+        }
+
+        AudioSource.PlayClipAtPoint(deathClip, transform.position, 1f);
     }
 
     private void PlayJumpSound()
@@ -1344,6 +1361,7 @@ public class Player : MonoBehaviour
         // Desactivar control y asegurar que el jugador no siga actuando
         canMove = false;
         attackActive = false;
+        PlayDeathSound();
 
         if (Animator != null)
         {
