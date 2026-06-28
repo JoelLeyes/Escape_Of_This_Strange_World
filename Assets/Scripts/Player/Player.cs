@@ -696,7 +696,7 @@ public class Player : MonoBehaviour
             return;
         }
 
-        AudioSource.PlayClipAtPoint(deathClip, transform.position, 1.50f);
+        AudioSource.PlayClipAtPoint(deathClip, transform.position, 3f);
     }
 
     private void PlayJumpSound()

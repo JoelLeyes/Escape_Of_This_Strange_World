@@ -366,7 +366,7 @@ public sealed class GameManager : MonoBehaviour
         musicAudioSource.playOnAwake = false;
         musicAudioSource.loop = true;
         musicAudioSource.spatialBlend = 0f;
-        musicAudioSource.volume = 1f;
+        musicAudioSource.volume = 0.85f;
     }
 
     private void AutoAssignMusicClips()
