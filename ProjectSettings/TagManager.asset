@@ -12,6 +12,7 @@ TagManager:
   - Item
   - BossPoint
   - KeyBoss
+  - Key
   layers:
   - Default
   - TransparentFX
