@@ -12,11 +12,15 @@ public sealed class GameManager : MonoBehaviour
     [Header("Escenas")]
     [SerializeField] private string menuSceneName = "Menú";
     [SerializeField] private string gameplaySceneName = "IntroEscena";
+    [SerializeField] private string level1SceneName = "Level1";
     [SerializeField] private string gameOverSceneName = "PantallaNivelPerdido";
 
     [Header("Mensajes")]
     [SerializeField] private float checkpointMessageDuration = 2f;
     [SerializeField] private float checkpointMessageTopOffset = 24f;
+
+    [Header("Derrota")]
+    [SerializeField] private float gameOverDelay = 3f;
 
     [Header("Musica")]
     [SerializeField] private AudioClip level1MusicClip;
@@ -38,6 +42,7 @@ public sealed class GameManager : MonoBehaviour
     private GUIStyle checkpointMessageStyle;
     private AudioSource musicAudioSource;
     private string lastGameplaySceneName;
+    private Coroutine gameOverRoutine;
 
 
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
@@ -255,7 +260,13 @@ public sealed class GameManager : MonoBehaviour
     public void GameOver()
     {
         ClearCheckpointMessage();
-        LoadScene(gameOverSceneName);
+
+        if (gameOverRoutine != null)
+        {
+            StopCoroutine(gameOverRoutine);
+        }
+
+        gameOverRoutine = StartCoroutine(LoadGameOverAfterDelay());
     }
 
     public void WinGame()
@@ -371,6 +382,13 @@ public sealed class GameManager : MonoBehaviour
         ClearCheckpointMessage();
         ResumeGame();
         SceneManager.LoadScene(sceneName);
+    }
+
+    private System.Collections.IEnumerator LoadGameOverAfterDelay()
+    {
+        yield return new WaitForSecondsRealtime(Mathf.Max(0f, gameOverDelay));
+        gameOverRoutine = null;
+        LoadScene(gameOverSceneName);
     }
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -516,7 +534,7 @@ public sealed class GameManager : MonoBehaviour
         musicAudioSource.playOnAwake = false;
         musicAudioSource.loop = true;
         musicAudioSource.spatialBlend = 0f;
-        musicAudioSource.volume = 1f;
+        musicAudioSource.volume = 0.75f;
     }
 
     private void AutoAssignMusicClips()
@@ -548,7 +566,7 @@ public sealed class GameManager : MonoBehaviour
 
         AudioClip targetClip = null;
 
-        if (sceneName == gameplaySceneName || sceneName == "Level1")
+        if (sceneName == gameplaySceneName || sceneName == level1SceneName)
         {
             targetClip = level1MusicClip;
         }
