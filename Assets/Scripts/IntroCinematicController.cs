@@ -14,6 +14,10 @@ public class IntroCinematicController : MonoBehaviour
 
     public GameObject portalCiudad;
 
+    [Header("Sonidos de Portales")]
+    [SerializeField] private AudioClip portalWarningSound; // Un segundo antes de aparecer
+    [SerializeField] private AudioClip portalCastleSound;  // Cuando aparece en el castillo
+
     public GameObject pantallaNegra;
 
     public Transform spawnCastillo;
@@ -53,6 +57,12 @@ public class IntroCinematicController : MonoBehaviour
     public GameObject textoInicio2;
     
     public GameObject textoInicio3;
+
+    [Header("Textos del Personaje (Ciudad)")]
+    public GameObject textoCI1;
+    public GameObject textoCI2;
+
+    public GameObject[] textosProfesor;
     void Update()
     {
         if (!introComenzo)
@@ -79,15 +89,13 @@ public class IntroCinematicController : MonoBehaviour
 
                 GetComponent<Animator>().enabled = false;
 
-                StartCoroutine(AppearPortalCiudad());
+                StartCoroutine(SecuenciaProfesorYPortal());
             }
         }
         
         if (enteringPortal)
         {
             transform.position += Vector3.right * speed * Time.deltaTime;
-
-            transform.localScale -= Vector3.one * 0.5f * Time.deltaTime;
 
             if (transform.position.x >= portalCiudad.transform.position.x)
             {
@@ -118,8 +126,8 @@ public class IntroCinematicController : MonoBehaviour
                 // Desaparecer el portal del castillo achicándose
                 StartCoroutine(DesaparecerPortalCastillo());
 
-                // Iniciar la espera y luego caminar hacia el castillo
-                StartCoroutine(EsperarYCaminarAlCastillo());
+                // Diálogo del castillo y luego caminar
+                StartCoroutine(SecuenciaDialogoCastillo());
             }
         }
 
@@ -188,6 +196,32 @@ public class IntroCinematicController : MonoBehaviour
         }
     }
 
+    private void LateUpdate()
+    {
+        // Si el texto 6 (textop6) está activo y asignado, hacemos que siga al profesor mientras camina
+        if (caminandoHaciaCastillo && textosProfesor != null && textosProfesor.Length > 6 && textosProfesor[6] != null && textosProfesor[6].activeInHierarchy)
+        {
+            RectTransform rectTransform = textosProfesor[6].GetComponent<RectTransform>();
+            
+            // Offset dinámico escalado con el tamaño del profesor
+            float scaleRatio = transform.localScale.y / escalaInicial.y;
+            Vector3 offset = new Vector3(0f, 1.8f * scaleRatio, 0f);
+            
+            if (rectTransform != null && rectTransform.GetComponentInParent<Canvas>() != null && rectTransform.GetComponentInParent<Canvas>().renderMode != RenderMode.WorldSpace)
+            {
+                if (Camera.main != null)
+                {
+                    Vector3 screenPos = Camera.main.WorldToScreenPoint(transform.position + offset);
+                    rectTransform.position = screenPos;
+                }
+            }
+            else
+            {
+                textosProfesor[6].transform.position = transform.position + offset;
+            }
+        }
+    }
+
     IEnumerator InicioIntro()
     {
         pantallaNegra.SetActive(true);
@@ -196,6 +230,8 @@ public class IntroCinematicController : MonoBehaviour
         if (textoInicio != null) textoInicio.SetActive(false);
         if (textoInicio2 != null) textoInicio2.SetActive(false);
         if (textoInicio3 != null) textoInicio3.SetActive(false);
+        if (textoCI1 != null) textoCI1.SetActive(false);
+        if (textoCI2 != null) textoCI2.SetActive(false);
 
         yield return new WaitForSeconds(0.5f);
 
@@ -269,13 +305,139 @@ public class IntroCinematicController : MonoBehaviour
         if (textoInicio2 != null) textoInicio2.SetActive(false);
         if (textoInicio3 != null) textoInicio3.SetActive(false);
 
-        yield return new WaitForSeconds(0.20f);
+        // 1.5 segundos después de que se muestre la ciudad, aparece textoCI1
+        yield return new WaitForSeconds(1.5f);
+
+        if (textoCI1 != null)
+        {
+            textoCI1.SetActive(true);
+            EfectoMaquinaEscribir effectCI1 = textoCI1.GetComponent<EfectoMaquinaEscribir>();
+            if (effectCI1 != null)
+            {
+                effectCI1.IniciarEfecto();
+                while (effectCI1.EstaEscribiendo())
+                {
+                    yield return null;
+                }
+            }
+            else
+            {
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+
+        // Cuando termina de completarse, desaparece
+        if (textoCI1 != null) textoCI1.SetActive(false);
+
+        // 0.5 segundos después aparece textoCI2
+        yield return new WaitForSeconds(0.5f);
+
+        if (textoCI2 != null)
+        {
+            textoCI2.SetActive(true);
+            EfectoMaquinaEscribir effectCI2 = textoCI2.GetComponent<EfectoMaquinaEscribir>();
+            if (effectCI2 != null)
+            {
+                effectCI2.IniciarEfecto();
+                while (effectCI2.EstaEscribiendo())
+                {
+                    yield return null;
+                }
+            }
+            else
+            {
+                yield return new WaitForSeconds(1.5f);
+            }
+        }
+
+        // Esperar un momento corto antes de que empiece a caminar para poder leer textoCI2
+        yield return new WaitForSeconds(1.5f);
+        if (textoCI2 != null) textoCI2.SetActive(false);
+
+        Animator anim = GetComponent<Animator>();
+        if (anim != null)
+        {
+            anim.enabled = true;
+        }
 
         introComenzo = true;
     }
 
-        void Start()
+    IEnumerator SecuenciaProfesorYPortal()
     {
+        // --- textop[0]: aparece cuando el profesor se detiene ---
+        if (textosProfesor != null && textosProfesor.Length > 0 && textosProfesor[0] != null)
+        {
+            textosProfesor[0].SetActive(true);
+            EfectoMaquinaEscribir effectP1 = textosProfesor[0].GetComponent<EfectoMaquinaEscribir>();
+            if (effectP1 != null)
+            {
+                effectP1.IniciarEfecto();
+                while (effectP1.EstaEscribiendo())
+                    yield return null;
+            }
+            else
+            {
+                yield return new WaitForSeconds(2f);
+            }
+        }
+
+        // Reproducir sonido un segundo antes de que aparezca el portal
+        PlayPortalSound(portalWarningSound);
+
+        // 1 segundo de espera antes de que aparezca el portal
+        yield return new WaitForSeconds(1f);
+
+        if (textosProfesor != null && textosProfesor.Length > 0 && textosProfesor[0] != null)
+            textosProfesor[0].SetActive(false);
+
+        // Aparece el portal
+        portalCiudad.SetActive(true);
+
+        // --- textop[1]: aparece cuando aparece el portal ---
+        if (textosProfesor != null && textosProfesor.Length > 1 && textosProfesor[1] != null)
+        {
+            yield return new WaitForSeconds(2f);
+            textosProfesor[1].SetActive(true);
+            EfectoMaquinaEscribir effectP2 = textosProfesor[1].GetComponent<EfectoMaquinaEscribir>();
+            if (effectP2 != null)
+            {
+                effectP2.IniciarEfecto();
+                while (effectP2.EstaEscribiendo())
+                    yield return null;
+            }
+            else
+            {
+                yield return new WaitForSeconds(2f);
+            }
+        }
+
+        // 1 segundo de espera antes de que empiece a caminar hacia el portal
+        yield return new WaitForSeconds(2f);
+
+        if (textosProfesor != null && textosProfesor.Length > 1 && textosProfesor[1] != null)
+            textosProfesor[1].SetActive(false);
+
+        // El profesor camina hacia el portal
+        enteringPortal = true;
+        GetComponent<Animator>().enabled = true;
+    }
+
+    void Start()
+    {
+        // Asegurar que comience en Idle y con el Animator desactivado
+        SpriteRenderer sr = GetComponent<SpriteRenderer>();
+        if (sr != null && idleSprite != null)
+        {
+            sr.sprite = idleSprite;
+        }
+
+        Animator anim = GetComponent<Animator>();
+        if (anim != null)
+        {
+            anim.enabled = false;
+        }
+
         StartCoroutine(InicioIntro());
     }
 
@@ -304,10 +466,6 @@ public class IntroCinematicController : MonoBehaviour
         portalCiudad.SetActive(true);
 
         yield return new WaitForSeconds(2f);
-
-        enteringPortal = true;
-
-        GetComponent<Animator>().enabled = true;
     }
 
     IEnumerator MostrarCastillo()
@@ -324,7 +482,12 @@ public class IntroCinematicController : MonoBehaviour
 
         pantallaNegra.SetActive(false);
 
-        yield return new WaitForSeconds(1.5f);
+        yield return new WaitForSeconds(0.5f);
+
+        // Reproducir sonido un segundo antes de que aparezca en el castillo
+        PlayPortalSound(portalCastleSound);
+
+        yield return new WaitForSeconds(1.0f);
 
         portalCastillo.SetActive(true);
 
@@ -352,6 +515,13 @@ public class IntroCinematicController : MonoBehaviour
     {
         if (portalCastillo != null)
         {
+            // Desactivamos el Animator para que no sobrescriba la escala del portal
+            Animator portalAnim = portalCastillo.GetComponent<Animator>();
+            if (portalAnim != null)
+            {
+                portalAnim.enabled = false;
+            }
+
             Vector3 escalaOriginalPortal = portalCastillo.transform.localScale;
             float tiempo = 1f; // duración en segundos del achicado
             float transcurrido = 0f;
@@ -366,9 +536,97 @@ public class IntroCinematicController : MonoBehaviour
             portalCastillo.SetActive(false);
             // Restauramos su escala por si acaso se reinicia el nivel
             portalCastillo.transform.localScale = escalaOriginalPortal;
+
+            // Reactivamos el Animator para que esté listo la próxima vez
+            if (portalAnim != null)
+            {
+                portalAnim.enabled = true;
+            }
         }
     }
+       // Secuencia de diálogo en el castillo y luego caminata
+    IEnumerator SecuenciaDialogoCastillo()
+    {
+        // Esperar a que el portal termine de achicarse (1 segundo) + 0.5s extra
+        yield return new WaitForSeconds(1.5f);
 
+        // Mostrar textosProfesor[2] al [5] en secuencia
+        for (int i = 2; i <= 5; i++)
+        {
+            if (textosProfesor == null || textosProfesor.Length <= i || textosProfesor[i] == null)
+                continue;
+
+            textosProfesor[i].SetActive(true);
+
+            // Esperar la duración del efecto máquina de escribir
+            EfectoMaquinaEscribir efecto = textosProfesor[i].GetComponent<EfectoMaquinaEscribir>();
+            if (efecto != null)
+            {
+                float duracion = efecto.textoCompleto.Length * efecto.velocidadEscritura;
+                yield return new WaitForSeconds(duracion);
+            }
+
+            // Mantener el texto visible 1 segundo más
+            yield return new WaitForSeconds(1f);
+
+            // Ocultar este texto e inmediatamente mostrar el siguiente
+            textosProfesor[i].SetActive(false);
+        }
+
+        // Iniciar la caminata hacia el castillo
+        GetComponent<Animator>().enabled = true;
+
+        waypointActual = 0;
+        distanciaRecorrida = 0f;
+
+        if (waypoints != null && waypoints.Length > 0)
+        {
+            if (waypoints[0] != null)
+                ActualizarDireccionDeMirada(waypoints[0].position);
+
+            distanciaTotalCaminata = 0f;
+            Vector3 puntoAnterior = transform.position;
+            for (int i = 0; i < waypoints.Length; i++)
+            {
+                if (waypoints[i] != null)
+                {
+                    distanciaTotalCaminata += Vector2.Distance(puntoAnterior, waypoints[i].position);
+                    puntoAnterior = waypoints[i].position;
+                }
+            }
+        }
+        else
+        {
+            distanciaTotalCaminata = 0f;
+        }
+
+        caminandoHaciaCastillo = true;
+        StartCoroutine(MostrarTextoP6());
+    }
+
+    IEnumerator MostrarTextoP6()
+    {
+        yield return new WaitForSeconds(1f);
+
+        if (textosProfesor != null && textosProfesor.Length > 6 && textosProfesor[6] != null)
+        {
+            textosProfesor[6].SetActive(true);
+            EfectoMaquinaEscribir efecto = textosProfesor[6].GetComponent<EfectoMaquinaEscribir>();
+            if (efecto != null)
+            {
+                float duracion = efecto.textoCompleto.Length * efecto.velocidadEscritura;
+                yield return new WaitForSeconds(duracion);
+            }
+            else
+            {
+                yield return new WaitForSeconds(3f);
+            }
+
+            yield return new WaitForSeconds(1.5f);
+            textosProfesor[6].SetActive(false);
+        }
+    }
+    
     // Espera en spawnCastillo y luego inicia la caminata
     IEnumerator EsperarYCaminarAlCastillo()
     {
@@ -426,5 +684,13 @@ public class IntroCinematicController : MonoBehaviour
         yield return new WaitForSeconds(1.5f); // 1.5 segundos en negro para el fadeout de audio/ambiente si hiciera falta
 
         UnityEngine.SceneManagement.SceneManager.LoadScene("Level1");
+    }
+
+    private void PlayPortalSound(AudioClip clip)
+    {
+        if (clip == null) return;
+        
+        Vector3 playPos = Camera.main != null ? Camera.main.transform.position : transform.position;
+        AudioSource.PlayClipAtPoint(clip, playPos);
     }
 }

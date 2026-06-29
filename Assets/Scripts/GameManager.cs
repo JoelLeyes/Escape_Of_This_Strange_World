@@ -2,6 +2,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using System.Collections.Generic;
 using UnityEngine.InputSystem;
+using UnityEngine.UI;
 
 
 public sealed class GameManager : MonoBehaviour
@@ -20,6 +21,10 @@ public sealed class GameManager : MonoBehaviour
     [Header("Musica")]
     [SerializeField] private AudioClip level1MusicClip;
     [SerializeField] private AudioClip level1BossMusicClip;
+    [SerializeField] private AudioClip finalSceneMusicClip;
+
+    [Header("Portada")]
+    [SerializeField] private Sprite portadaSprite;
 
     private const string CheckpointSavedMessage = "Punto salvado";
 
@@ -51,6 +56,7 @@ public sealed class GameManager : MonoBehaviour
     {
         if (Instance != null && Instance != this)
         {
+            Instance.CopyFieldsFrom(this);
             Destroy(gameObject);
             return;
         }
@@ -62,6 +68,20 @@ public sealed class GameManager : MonoBehaviour
         SceneManager.sceneLoaded += OnSceneLoaded;
         ResumeGame();
         UpdateSceneMusic(SceneManager.GetActiveScene().name);
+    }
+
+    public void CopyFieldsFrom(GameManager other)
+    {
+        if (other == null) return;
+
+        if (other.level1MusicClip != null) this.level1MusicClip = other.level1MusicClip;
+        if (other.level1BossMusicClip != null) this.level1BossMusicClip = other.level1BossMusicClip;
+        if (other.finalSceneMusicClip != null) this.finalSceneMusicClip = other.finalSceneMusicClip;
+        if (other.portadaSprite != null) this.portadaSprite = other.portadaSprite;
+
+        if (!string.IsNullOrEmpty(other.menuSceneName)) this.menuSceneName = other.menuSceneName;
+        if (!string.IsNullOrEmpty(other.gameplaySceneName)) this.gameplaySceneName = other.gameplaySceneName;
+        if (!string.IsNullOrEmpty(other.gameOverSceneName)) this.gameOverSceneName = other.gameOverSceneName;
     }
 
     private void OnDestroy()
@@ -129,7 +149,89 @@ public sealed class GameManager : MonoBehaviour
         ClearCheckpointMessage();
         Player.ResetPersistentInstance();
         lastGameplaySceneName = null;
+
+        if (SceneManager.GetActiveScene().name == menuSceneName && portadaSprite != null)
+        {
+            StartCoroutine(PortadaTransitionSequence());
+        }
+        else
+        {
+            LoadScene(gameplaySceneName);
+        }
+    }
+
+    private System.Collections.IEnumerator PortadaTransitionSequence()
+    {
+        // Crear Canvas temporal para la portada
+        GameObject canvasObj = new GameObject("PortadaTransitionCanvas");
+        Canvas canvas = canvasObj.AddComponent<Canvas>();
+        canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+        canvas.sortingOrder = 999;
+        canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>();
+        canvasObj.AddComponent<UnityEngine.UI.GraphicRaycaster>();
+        DontDestroyOnLoad(canvasObj);
+
+        // Crear fondo negro
+        GameObject bgObj = new GameObject("BlackBackground");
+        bgObj.transform.SetParent(canvas.transform, false);
+        Image bgImage = bgObj.AddComponent<Image>();
+        bgImage.color = Color.black;
+        RectTransform bgRect = bgObj.GetComponent<RectTransform>();
+        bgRect.anchorMin = Vector2.zero;
+        bgRect.anchorMax = Vector2.one;
+        bgRect.sizeDelta = Vector2.zero;
+
+        // Crear imagen de portada
+        GameObject portadaObj = new GameObject("PortadaImage");
+        portadaObj.transform.SetParent(canvas.transform, false);
+        Image portadaImage = portadaObj.AddComponent<Image>();
+        portadaImage.sprite = portadaSprite;
+        portadaImage.preserveAspect = true;
+        
+        RectTransform portadaRect = portadaObj.GetComponent<RectTransform>();
+        portadaRect.anchorMin = Vector2.zero;
+        portadaRect.anchorMax = Vector2.one;
+        portadaRect.sizeDelta = Vector2.zero;
+
+        // Opacidad a 0 inicialmente
+        portadaImage.color = new Color(1f, 1f, 1f, 0f);
+
+        // Desvanecimiento 0 a 100% (1 segundo)
+        float duration = 1.0f;
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(0f, 1f, elapsed / duration);
+            portadaImage.color = new Color(1f, 1f, 1f, alpha);
+            yield return null;
+        }
+        portadaImage.color = new Color(1f, 1f, 1f, 1f);
+
+        // Mostrar 2 segundos al 100%
+        yield return new WaitForSeconds(2f);
+
+        // Desvanecimiento 100% a 0% (1 segundo)
+        elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            float alpha = Mathf.Lerp(1f, 0f, elapsed / duration);
+            portadaImage.color = new Color(1f, 1f, 1f, alpha);
+            yield return null;
+        }
+        portadaImage.color = new Color(1f, 1f, 1f, 0f);
+        portadaObj.SetActive(false);
+
+        // Esperar 1 segundo con pantalla en negro
+        yield return new WaitForSeconds(1f);
+
+        // Cargar escena
         LoadScene(gameplaySceneName);
+
+        // Esperar un instante y destruir Canvas
+        yield return new WaitForSeconds(0.5f);
+        Destroy(canvasObj);
     }
 
     public void PauseToMenu()
@@ -155,6 +257,17 @@ public sealed class GameManager : MonoBehaviour
         ClearCheckpointMessage();
         LoadScene(gameOverSceneName);
     }
+
+    public void WinGame()
+    {
+        ClearCheckpoint();
+        ClearWorldObjectStates();
+        ClearCheckpointMessage();
+        Player.ResetPersistentInstance();
+        lastGameplaySceneName = null;
+        LoadScene("Final");
+    }
+
 
     public void ContinueFromCheckpoint()
     {
@@ -234,11 +347,17 @@ public sealed class GameManager : MonoBehaviour
 
     public void QuitGame()
     {
-        Application.Quit();
-
+        if (Application.platform == RuntimePlatform.WebGLPlayer)
+        {
+            BackToMenu();
+        }
+        else
+        {
+            Application.Quit();
 #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
+            UnityEditor.EditorApplication.isPlaying = false;
 #endif
+        }
     }
 
     private void LoadScene(string sceneName)
@@ -267,6 +386,55 @@ public sealed class GameManager : MonoBehaviour
             lastGameplaySceneName = scene.name;
         }
         EnsureMenuManagerInScene();
+
+        if (scene.name == "Final")
+        {
+            SetupFinalSceneButtons();
+        }
+    }
+
+    private void SetupFinalSceneButtons()
+    {
+        Debug.Log("GameManager: Configurando botones en la escena Final.");
+        Button[] buttons = Resources.FindObjectsOfTypeAll<Button>();
+        foreach (Button btn in buttons)
+        {
+            if (btn.gameObject.scene != SceneManager.GetActiveScene())
+            {
+                continue;
+            }
+
+            if (btn.gameObject.name == "PlayButton")
+            {
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(() =>
+                {
+                    Debug.Log("PlayButton presionado en la escena Final. Iniciando juego/cinematica.");
+                    StopFinalSceneMusic();
+                    StartGame();
+                });
+                Debug.Log("PlayButton configurado exitosamente.");
+            }
+            else if (btn.gameObject.name == "QuitButton")
+            {
+                btn.onClick.RemoveAllListeners();
+                btn.onClick.AddListener(() =>
+                {
+                    Debug.Log("QuitButton presionado en la escena Final. Cerrando juego.");
+                    StopFinalSceneMusic();
+                    QuitGame();
+                });
+                Debug.Log("QuitButton configurado exitosamente.");
+            }
+        }
+    }
+
+    private void StopFinalSceneMusic()
+    {
+        if (musicAudioSource != null)
+        {
+            musicAudioSource.Stop();
+        }
     }
 
     public bool IsMenuOrGameOverScene(string sceneName)
@@ -363,6 +531,11 @@ public sealed class GameManager : MonoBehaviour
         {
             level1BossMusicClip = UnityEditor.AssetDatabase.LoadAssetAtPath<AudioClip>("Assets/Sound/AmbientMusicaBOSS.mp3");
         }
+
+        if (portadaSprite == null)
+        {
+            portadaSprite = UnityEditor.AssetDatabase.LoadAssetAtPath<Sprite>("Assets/Sprites/imagenPortada.png");
+        }
 #endif
     }
 
@@ -375,13 +548,17 @@ public sealed class GameManager : MonoBehaviour
 
         AudioClip targetClip = null;
 
-        if (sceneName == gameplaySceneName)
+        if (sceneName == gameplaySceneName || sceneName == "Level1")
         {
             targetClip = level1MusicClip;
         }
         else if (sceneName == "Level1Boss")
         {
             targetClip = level1BossMusicClip;
+        }
+        else if (sceneName == "Final")
+        {
+            targetClip = finalSceneMusicClip;
         }
 
         if (targetClip == null)

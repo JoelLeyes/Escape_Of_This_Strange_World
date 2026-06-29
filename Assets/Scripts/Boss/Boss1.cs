@@ -367,6 +367,14 @@ public class Boss1 : MonoBehaviour
         if (vida <= 0f)
         {
             StopMovementSound();
+            if (GameManager.Instance != null)
+            {
+                GameManager.Instance.WinGame();
+            }
+            else
+            {
+                UnityEngine.SceneManagement.SceneManager.LoadScene("Final");
+            }
             Destroy(gameObject);
             return;
         }
