@@ -917,7 +917,7 @@ public class Player : MonoBehaviour
     private void MagicAttack()
     {
         if (Keyboard.current == null
-            || !Keyboard.current.qKey.wasPressedThisFrame
+            || !Keyboard.current.kKey.wasPressedThisFrame
             || !Grounded
             || Animator == null
             || attackActive
