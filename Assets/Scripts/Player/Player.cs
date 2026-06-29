@@ -1356,6 +1356,18 @@ public class Player : MonoBehaviour
         }
     }
 
+    public void RestaurarSaludCompleta()
+    {
+        if (nivelPerdido)
+        {
+            return;
+        }
+
+        corazonesActuales = corazonesMaximos;
+        nextDamageTime = Time.time + tiempoInvulnerable;
+        ActualizarCorazones();
+    }
+
     private void PerderNivel()
     {
         if (nivelPerdido)
