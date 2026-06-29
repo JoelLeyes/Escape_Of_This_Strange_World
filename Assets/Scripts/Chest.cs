@@ -180,19 +180,16 @@ public class Chest : MonoBehaviour
             animator.SetTrigger(openTriggerName);
         }
 
-        // Generar solo un item visible por tipo y transmitir la cantidad real al pickup
+        // Generar un solo item al azar entre los posibles items configurados
         if (possibleItems != null && possibleItems.Count > 0)
         {
-            foreach (ChestItem item in possibleItems)
+            int randomIndex = Random.Range(0, possibleItems.Count);
+            ChestItem item = possibleItems[randomIndex];
+            if (item != null && item.prefab != null)
             {
-                if (item.prefab != null)
+                int amount = Random.Range(item.minAmount, item.maxAmount + 1);
+                if (amount > 0)
                 {
-                    int amount = Random.Range(item.minAmount, item.maxAmount + 1);
-                    if (amount <= 0)
-                    {
-                        continue;
-                    }
-
                     Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
                     GameObject spawned = Instantiate(item.prefab, spawnPos, Quaternion.identity);
                     spawned.SetActive(true);

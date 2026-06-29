@@ -5908,7 +5908,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6524176073757923440, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
       propertyPath: possibleItems.Array.data[1].minAmount
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7044497778912146071, guid: 73de2bf81436ef34fa4abc902e02e7db, type: 3}
       propertyPath: m_LocalPosition.x

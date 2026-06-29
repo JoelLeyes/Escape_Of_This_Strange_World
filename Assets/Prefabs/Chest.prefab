@@ -178,10 +178,14 @@ MonoBehaviour:
   interactionRadius: 1.5
   interactionMessage: Presione E para abrir
   promptYOffset: 0.4
+  doorOpenClip: {fileID: 0}
   possibleItems:
   - prefab: {fileID: 4317482803829006333, guid: 7923fb1d3587b734b857927e38fa0eeb, type: 3}
     minAmount: 10
     maxAmount: 15
+  - prefab: {fileID: 1440545607721856031, guid: 5ececca5a5c10bc4abc783acdc8b6f54, type: 3}
+    minAmount: 1
+    maxAmount: 1
 --- !u!82 &-2110500125510401128
 AudioSource:
   m_ObjectHideFlags: 0
