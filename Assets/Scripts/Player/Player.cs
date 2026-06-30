@@ -951,7 +951,7 @@ public class Player : MonoBehaviour
     private void BowAttack()
     {
         if (Keyboard.current == null
-            || !Keyboard.current.lKey.wasPressedThisFrame
+            || !Keyboard.current.pKey.wasPressedThisFrame
             || !Grounded
             || Animator == null
             || attackActive
