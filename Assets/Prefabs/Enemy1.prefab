@@ -121,7 +121,7 @@ MonoBehaviour:
   hitbox: {fileID: 0}
   attackLockDuration: 1
   attackDistance: 0.25
-  attackDistanceY: 1.5
+  attackDistanceY: 0.55
   stopDistance: 0.2
   danioGolpe: 25
   radioGolpe: 1.3
