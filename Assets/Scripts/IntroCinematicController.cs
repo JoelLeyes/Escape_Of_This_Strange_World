@@ -14,6 +14,8 @@ public class IntroCinematicController : MonoBehaviour
 
     public GameObject portalCiudad;
 
+    public GameObject nintendoSwitch;
+
     [Header("Sonidos de Portales")]
     [SerializeField] private AudioClip portalWarningSound; // Un segundo antes de aparecer
     [SerializeField] private AudioClip portalCastleSound;  // Cuando aparece en el castillo
@@ -381,7 +383,6 @@ public class IntroCinematicController : MonoBehaviour
                 yield return new WaitForSeconds(2f);
             }
         }
-
         // Reproducir sonido un segundo antes de que aparezca el portal
         PlayPortalSound(portalWarningSound);
 

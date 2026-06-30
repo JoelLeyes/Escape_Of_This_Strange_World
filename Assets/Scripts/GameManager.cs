@@ -57,6 +57,11 @@ public sealed class GameManager : MonoBehaviour
         gameManagerObject.AddComponent<GameManager>();
     }
 
+    // WebGL: el navegador bloquea el audio hasta que el usuario interactúa.
+    // Guardamos el clip pendiente para reintentarlo tras el primer input.
+    private bool audioContextUnlocked = false;
+    private AudioClip pendingMusicClip = null;
+
     private void Awake()
     {
         if (Instance != null && Instance != this)
@@ -101,6 +106,24 @@ public sealed class GameManager : MonoBehaviour
 
     private void Update()
     {
+        // WebGL: intentar desbloquear el contexto de audio tras la primera interacción del usuario.
+        if (!audioContextUnlocked)
+        {
+            bool userInteracted = Input.anyKeyDown || Input.GetMouseButtonDown(0) || Input.GetMouseButtonDown(1);
+            if (userInteracted)
+            {
+                audioContextUnlocked = true;
+                // Si había un clip pendiente (bloqueado por el navegador), lo reproducimos ahora.
+                if (pendingMusicClip != null && musicAudioSource != null && !musicAudioSource.isPlaying)
+                {
+                    musicAudioSource.clip = pendingMusicClip;
+                    musicAudioSource.loop = true;
+                    musicAudioSource.Play();
+                    pendingMusicClip = null;
+                }
+            }
+        }
+
         if (Keyboard.current == null)
         {
             return;
@@ -591,9 +614,25 @@ public sealed class GameManager : MonoBehaviour
             return;
         }
 
+        musicAudioSource.Stop();
         musicAudioSource.clip = targetClip;
         musicAudioSource.loop = true;
+
+        // En WebGL el navegador bloquea el audio hasta la primera interacción del usuario.
+        // Si el contexto ya fue desbloqueado reproducimos de inmediato; si no, guardamos el clip para reproducirlo en cuanto el usuario toque algo.
+#if UNITY_WEBGL && !UNITY_EDITOR
+        if (audioContextUnlocked)
+        {
+            musicAudioSource.Play();
+            pendingMusicClip = null;
+        }
+        else
+        {
+            pendingMusicClip = targetClip;
+        }
+#else
         musicAudioSource.Play();
+#endif
     }
 
     private void EnsureCheckpointMessageStyle()

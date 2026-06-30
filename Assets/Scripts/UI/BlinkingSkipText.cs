@@ -59,7 +59,7 @@ public class BlinkingSkipText : MonoBehaviour
         // Añadir el componente TextMeshProUGUI
         TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
         tmp.text = "Presione ESC para saltar la intro";
-        tmp.fontSize = 18f; // Más chico
+        tmp.fontSize = 26f; // Más chico
         tmp.alignment = TextAlignmentOptions.Center;
         tmp.color = new Color(1f, 1f, 1f, 0f); // Transparente inicialmente para el fade-in
 
@@ -79,6 +79,9 @@ public class BlinkingSkipText : MonoBehaviour
 
     private IEnumerator BlinkSequence()
     {
+        // Esperar 15 segundos antes de mostrar el texto
+        yield return new WaitForSeconds(15f);
+
         float fadeInDuration = 0.5f;   // Sube gradualmente en 0.5 segundos (más rápido)
         float stayDuration = 1.0f;     // Se mantiene al 100% durante 1.0 segundo (más rápido)
         float fadeOutDuration = 0.5f;  // Baja al 0% en 0.5 segundos (más rápido)
