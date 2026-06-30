@@ -10,11 +10,12 @@ public class BlinkingSkipText : MonoBehaviour
     [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     private static void Init()
     {
-        SceneManager.sceneLoaded -= OnSceneLoaded; // Evitar doble registro
+        SceneManager.sceneLoaded -= OnSceneLoaded;
         SceneManager.sceneLoaded += OnSceneLoaded;
+
         if (SceneManager.GetActiveScene().name == "IntroEscena")
         {
-            CreateSkipText();
+            CreateRunner();
         }
     }
 
@@ -22,55 +23,84 @@ public class BlinkingSkipText : MonoBehaviour
     {
         if (scene.name == "IntroEscena")
         {
+            CreateRunner();
+        }
+    }
+
+    private static void CreateRunner()
+    {
+        GameObject runner = new GameObject("SkipTextRunner");
+        Object.DontDestroyOnLoad(runner);
+        runner.AddComponent<CoroutineRunner>();
+    }
+
+    private class CoroutineRunner : MonoBehaviour
+    {
+        private IEnumerator Start()
+        {
+            // Esperar a que toda la escena termine de inicializarse
+            yield return null;
+            yield return null;
+            yield return new WaitForSeconds(0.2f);
+
             CreateSkipText();
+
+            Destroy(gameObject);
         }
     }
 
     private static void CreateSkipText()
     {
         if (GameObject.Find("SkipIntroText") != null)
-        {
             return;
+
+        Canvas[] canvases = Object.FindObjectsByType<Canvas>(FindObjectsSortMode.None);
+
+        Canvas canvas = null;
+
+        foreach (Canvas c in canvases)
+        {
+            if (c.isActiveAndEnabled)
+            {
+                canvas = c;
+                break;
+            }
         }
 
-        // Buscar el Canvas existente en la escena
-        Canvas canvas = Object.FindFirstObjectByType<Canvas>();
         if (canvas == null)
         {
             GameObject canvasObj = new GameObject("Canvas");
             canvas = canvasObj.AddComponent<Canvas>();
             canvas.renderMode = RenderMode.ScreenSpaceOverlay;
+            canvas.sortingOrder = 9999;
+
             canvasObj.AddComponent<UnityEngine.UI.CanvasScaler>();
             canvasObj.AddComponent<UnityEngine.UI.GraphicRaycaster>();
         }
 
-        // Crear el GameObject del Texto
         GameObject textObj = new GameObject("SkipIntroText");
         textObj.transform.SetParent(canvas.transform, false);
 
-        // Configurar el RectTransform
         RectTransform rect = textObj.AddComponent<RectTransform>();
         rect.anchorMin = new Vector2(0.5f, 0f);
         rect.anchorMax = new Vector2(0.5f, 0f);
         rect.pivot = new Vector2(0.5f, 0f);
-        rect.anchoredPosition = new Vector2(0f, 35f); // Posicionado más abajo
+        rect.anchoredPosition = new Vector2(0f, 35f);
         rect.sizeDelta = new Vector2(800f, 60f);
 
-        // Añadir el componente TextMeshProUGUI
         TextMeshProUGUI tmp = textObj.AddComponent<TextMeshProUGUI>();
         tmp.text = "Presione ESC para saltar la intro";
-        tmp.fontSize = 26f; // Más chico
+        tmp.fontSize = 26f;
         tmp.alignment = TextAlignmentOptions.Center;
-        tmp.color = new Color(1f, 1f, 1f, 0f); // Transparente inicialmente para el fade-in
+        tmp.color = new Color(1f, 1f, 1f, 0f);
 
-        // Añadir este componente para manejar el parpadeo
         textObj.AddComponent<BlinkingSkipText>();
-        Debug.Log("SkipIntroText creado dinámicamente en IntroEscena.");
     }
 
     private void Start()
     {
         textComponent = GetComponent<TMP_Text>();
+
         if (textComponent != null)
         {
             StartCoroutine(BlinkSequence());
@@ -79,55 +109,51 @@ public class BlinkingSkipText : MonoBehaviour
 
     private IEnumerator BlinkSequence()
     {
-        // Esperar 15 segundos antes de mostrar el texto
         yield return new WaitForSeconds(15f);
 
-        float fadeInDuration = 0.5f;   // Sube gradualmente en 0.5 segundos (más rápido)
-        float stayDuration = 1.0f;     // Se mantiene al 100% durante 1.0 segundo (más rápido)
-        float fadeOutDuration = 0.5f;  // Baja al 0% en 0.5 segundos (más rápido)
+        float fadeInDuration = 0.5f;
+        float stayDuration = 1f;
+        float fadeOutDuration = 0.5f;
 
-        for (int i = 0; i < 2; i++) // Dos veces seguidas
+        for (int i = 0; i < 2; i++)
         {
-            // 1. Aparecer (0 a 1)
             float elapsed = 0f;
+
             while (elapsed < fadeInDuration)
             {
                 elapsed += Time.deltaTime;
-                float alpha = Mathf.Lerp(0f, 1f, elapsed / fadeInDuration);
-                SetAlpha(alpha);
+                SetAlpha(Mathf.Lerp(0f, 1f, elapsed / fadeInDuration));
                 yield return null;
             }
+
             SetAlpha(1f);
 
-            // 2. Mantener al 100%
             yield return new WaitForSeconds(stayDuration);
 
-            // 3. Desvanecer (1 a 0)
             elapsed = 0f;
+
             while (elapsed < fadeOutDuration)
             {
                 elapsed += Time.deltaTime;
-                float alpha = Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration);
-                SetAlpha(alpha);
+                SetAlpha(Mathf.Lerp(1f, 0f, elapsed / fadeOutDuration));
                 yield return null;
             }
+
             SetAlpha(0f);
 
-            // Breve espera antes del segundo ciclo (0.2s)
             yield return new WaitForSeconds(0.2f);
         }
 
-        // Destruir el GameObject después de terminar las dos repeticiones
         Destroy(gameObject);
     }
 
     private void SetAlpha(float alpha)
     {
-        if (textComponent != null)
-        {
-            Color color = textComponent.color;
-            color.a = alpha;
-            textComponent.color = color;
-        }
+        if (textComponent == null)
+            return;
+
+        Color c = textComponent.color;
+        c.a = alpha;
+        textComponent.color = c;
     }
 }
