@@ -126,8 +126,8 @@ TextureImporter:
       customData: 
       outline: []
       physicsShape:
-      - - {x: 32, y: 26}
-        - {x: -32, y: 26}
+      - - {x: 32, y: 32}
+        - {x: -32, y: 32}
         - {x: -32, y: -32}
         - {x: 32, y: -32}
       tessellationDetail: 0
