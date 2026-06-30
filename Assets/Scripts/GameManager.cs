@@ -160,7 +160,7 @@ public sealed class GameManager : MonoBehaviour
             SceneManager.UnloadSceneAsync(menuSceneName);
             ResumeGame();
         }
-        else if (!string.IsNullOrEmpty(lastGameplaySceneName))
+        else if (hasCheckpoint && !string.IsNullOrWhiteSpace(checkpointSceneName))
         {
             ContinueFromCheckpoint();
         }
@@ -316,15 +316,7 @@ public sealed class GameManager : MonoBehaviour
             return;
         }
 
-        Player.ResetPersistentInstance();
-        if (!string.IsNullOrEmpty(lastGameplaySceneName))
-        {
-            LoadScene(lastGameplaySceneName);
-        }
-        else
-        {
-            LoadScene(gameplaySceneName);
-        }
+        StartGame();
     }
 
     public void ReloadCurrentScene()

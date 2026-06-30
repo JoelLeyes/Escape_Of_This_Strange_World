@@ -219,7 +219,7 @@ public class Enemy1 : MonoBehaviour
         /********************************* GOLPEAR JUGADOR **********************************/
         if (puedeAtacar
             && distanciaAbsoluta <= attackDistance + 0.35f
-            && distanciaAbsolutaEjeY <= attackDistanceY + 0.6f)
+            && IsTargetInsideAttackRange(distanciaAbsolutaEjeY))
         {
             // Frena antes de iniciar el golpe para evitar deslizamientos
             rb.linearVelocity *= 0.95f;
@@ -321,7 +321,7 @@ public class Enemy1 : MonoBehaviour
         {
             float dx = Mathf.Abs(objetivo.transform.position.x - transform.position.x);
             float dy = Mathf.Abs(objetivo.transform.position.y - transform.position.y);
-            if (dx <= attackDistance + 0.35f && dy <= attackDistanceY + 0.6f)
+            if (dx <= attackDistance + 0.35f && IsTargetInsideAttackRange(dy))
             {
                 playerObjetivo.RecibirDanio(danioGolpe);
                 danioAplicadoEnAtaque = true;
@@ -336,7 +336,7 @@ public class Enemy1 : MonoBehaviour
         }
 
         Vector2 centroGolpe = (Vector2)transform.position + new Vector2(offsetGolpe.x * direccionGolpe, offsetGolpe.y);
-        Collider2D[] impactos = Physics2D.OverlapCircleAll(centroGolpe, radioGolpe);
+        Collider2D[] impactos = Physics2D.OverlapBoxAll(centroGolpe, new Vector2(radioGolpe * 2f, attackDistanceY), 0f);
         for (int i = 0; i < impactos.Length; i++)
         {
             if (impactos[i] != null && impactos[i].GetComponentInParent<Player>() != null)
@@ -346,6 +346,12 @@ public class Enemy1 : MonoBehaviour
                 return;
             }
         }
+    }
+
+    private bool IsTargetInsideAttackRange(float deltaY)
+    {
+        float maxDeltaY = attackDistanceY * 0.5f;
+        return Mathf.Abs(deltaY - offsetGolpe.y) <= maxDeltaY;
     }
 
     private void SetFacingToTarget(float deltaX)
